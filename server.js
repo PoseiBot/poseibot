@@ -1,131 +1,113 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-require('dotenv').config();
+const axios = require('axios');
+const { ChatOpenAI } = require('@langchain/openai');
+const { ChatPromptTemplate } = require('@langchain/core/prompts');
+const { RunnableSequence } = require('@langchain/core/runnables');
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
-app.use(express.static(__dirname));
-app.use(express.json());
+app.use(express.static('public')); // ✅ public 폴더에서 이미지 제공
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+const systemPrompt = `
+You are PoseiBot, an AI assistant for the Poseidon project.
+You will answer in a friendly and natural tone, and occasionally use emojis.
+Only cite external URLs if they are included in the user's request or are part of real-time search results.
+
+Poseidon project info:
+- Token details:
+${fs.readFileSync('./poseidon_token_info.txt', 'utf8')}
+
+- Worldview and narrative:
+${fs.readFileSync('./poseidon_chronicle.txt', 'utf8')}
+
+- WaveRider Guide:
+${fs.readFileSync('./waveRider_guide.txt', 'utf8')}
+
+- Internal news:
+${fs.readFileSync('./poseidon_news.txt', 'utf8')}
+`;
+
+const model = new ChatOpenAI({
+  modelName: 'gpt-4o',
+  temperature: 0.7,
+  openAIApiKey: process.env.OPENAI_API_KEY,
+});
+
+const prompt = ChatPromptTemplate.fromMessages([
+  ['system', systemPrompt],
+  ['human', '{input}'],
+]);
+
+const chain = RunnableSequence.from([prompt, model]);
+
+// 🧠 실시간 뉴스나 웹 검색이 필요한 경우
+async function fetchSerperResult(query) {
+  const url = 'https://google.serper.dev/search';
+  const headers = {
+    'X-API-KEY': process.env.SERPER_API_KEY,
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const response = await axios.post(url, { q: query }, { headers });
+    const result = response.data;
+    if (!result || !result.organic) return null;
+
+    const summaries = result.organic.slice(0, 3).map((item, idx) => {
+      return `${idx + 1}. **${item.title}** - ${item.snippet} ([source](${item.link}))`;
+    });
+
+    return summaries.length
+      ? `Here are the latest updates I found:\n\n${summaries.join('\n\n')}`
+      : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+app.post('/chat', async (req, res) => {
+  const userInput = req.body.message;
+
+  try {
+    // 뉴스나 웹 관련 키워드일 경우만 실시간 검색
+    const keywords = ['news', 'latest', 'update', '소식', '뉴스'];
+    const isSearch = keywords.some((word) => userInput.toLowerCase().includes(word));
+
+    if (isSearch) {
+      const searchReply = await fetchSerperResult(userInput);
+      if (searchReply) {
+        return res.json({ reply: searchReply });
+      }
+    }
+
+    const gptResponse = await chain.invoke({ input: userInput });
+    let output = gptResponse.content;
+
+    // 불확실한 내용이 포함될 경우 베타 알림
+    if (output.toLowerCase().includes('not sure') || output.includes('might be')) {
+      output += `\n\n⚠️ *Note: PoseiBot is still in beta, and some information may be refined in future updates.*`;
+    }
+
+    res.json({ reply: output });
+  } catch (err) {
+    console.error('Error:', err.message);
+    res.status(500).json({ reply: 'Sorry, something went wrong.' });
+  }
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-function isSearchIntent(text) {
-  const keywords = ['news', 'latest', 'update', '소식', '뉴스', '최근', '기사', '정보'];
-  return keywords.some(keyword => text.toLowerCase().includes(keyword));
-}
-
-function loadPoseidonKnowledge() {
-  const files = [
-    'poseidon_token_info.txt',
-    'poseidon_chronicle.txt',
-    'waveRider_guide.txt',
-    'poseidon_news.txt'
-  ];
-
-  let knowledge = '';
-  for (const file of files) {
-    try {
-      const content = fs.readFileSync(path.join(__dirname, file), 'utf-8');
-      knowledge += `\n\n[${file}]\n${content}`;
-    } catch (err) {
-      console.warn(`Warning: could not read ${file}`);
-    }
-  }
-
-  return knowledge;
-}
-
-const poseidonKnowledge = loadPoseidonKnowledge();
-
-app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
-  if (!userMessage) {
-    return res.status(400).json({ reply: 'Message is empty.' });
-  }
-
-  try {
-    let gptMessages;
-
-    if (isSearchIntent(userMessage)) {
-      const serperRes = await fetch('https://google.serper.dev/search', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.SERPER_API_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ q: userMessage })
-      });
-
-      const serperData = await serperRes.json();
-      const topResults = serperData.organic?.slice(0, 3) || [];
-
-      if (topResults.length === 0) {
-        return res.json({ reply: 'No relevant search results found.' });
-      }
-
-      const webContext = topResults
-        .map((item, i) => `${i + 1}. ${item.title}\n${item.snippet}\n${item.link}`)
-        .join('\n\n');
-
-      gptMessages = [
-        {
-          role: 'system',
-          content:
-            `You are PoseiBot, a friendly assistant of the Poseidon project. Speak warmly, informally, and avoid sounding robotic. Use the search results below to answer clearly. If information is uncertain, say so, and mention the bot is still in beta.\n\n${webContext}`
-        },
-        {
-          role: 'user',
-          content: userMessage
-        }
-      ];
-    } else {
-      gptMessages = [
-        {
-          role: 'system',
-          content:
-            `You are PoseiBot 🌊, a friendly and helpful assistant representing the Poseidon project. Speak casually like a team member. If something is unclear, say so politely. Mention the bot is in beta when appropriate. Use this knowledge:\n${poseidonKnowledge}`
-        },
-        {
-          role: 'user',
-          content: userMessage
-        }
-      ];
-    }
-
-    const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: gptMessages,
-        temperature: 0.7,
-      }),
-    });
-
-    const gptData = await gptRes.json();
-    let answer = gptData.choices?.[0]?.message?.content || 'No response received.';
-
-    // 불확실한 응답일 경우 베타 메시지 추가
-    if (/not sure|uncertain|cannot confirm|no information|sorry/i.test(answer)) {
-      answer += `\n\n⚠️ Please note: PoseiBot is currently in beta. This answer is based on available data and may not be fully accurate. We're continuously improving the bot based on real user feedback.`;
-    }
-
-    return res.json({ reply: answer });
-
-  } catch (err) {
-    console.error('Error in /chat:', err);
-    return res.status(500).json({ reply: 'Internal server error.' });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ PoseiBot is running at http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });

@@ -5,59 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PoseiBot Chat</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>Ask PoseiBot</h1>
-
-    <div class="input-wrapper">
-      <img src="logo_PoseBot.png" alt="PoseiBot Logo" />
-      <textarea id="user-input" placeholder="Ask something..."></textarea>
-    </div>
-
-    <button id="send-btn">Send</button>
-
-    <div id="response">
-      <!-- GPT reply will appear here -->
-    </div>
+  <h1>Ask PoseiBot</h1>
+  <div class="input-container">
+    <img src="/logo_PoseBot.png" alt="PoseiBot Logo" />
+    <input
+      type="text"
+      id="user-input"
+      placeholder="Ask something..."
+      onfocus="this.value='';"
+    />
   </div>
+  <button id="send-button">Send</button>
+  <div id="chat-response" class="chat-bubble"></div>
 
   <script>
     const input = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
-    const responseBox = document.getElementById('response');
+    const button = document.getElementById('send-button');
+    const response = document.getElementById('chat-response');
 
-    input.addEventListener('focus', () => {
-      input.value = '';
-    });
-
-    input.addEventListener('keypress', (e) => {
+    input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        sendBtn.click();
+        sendMessage();
       }
     });
 
-    sendBtn.addEventListener('click', async () => {
-      const question = input.value.trim();
-      if (!question) return;
+    button.addEventListener('click', sendMessage);
 
-      responseBox.innerHTML = '<div class="bubble typing">PoseiBot is typing...</div>';
+    function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
 
-      try {
-        const res = await fetch('/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: question })
+      response.textContent = 'PoseiBot is typing...';
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          response.innerHTML = data.reply.replace(/\n/g, '<br>');
+        })
+        .catch((err) => {
+          response.textContent = 'Error fetching response.';
+          console.error(err);
         });
-
-        const data = await res.json();
-        responseBox.innerHTML = `<div class="bubble">${data.response}</div>`;
-      } catch (err) {
-        responseBox.innerHTML = `<div class="bubble"⚠️ Error: ${err.message}</div>`;
-      }
-    });
+    }
   </script>
 </body>
 </html>
