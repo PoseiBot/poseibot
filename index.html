@@ -7,52 +7,44 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Ask PoseiBot</h1>
-  <div class="input-container">
-    <img src="/logo_PoseBot.png" alt="PoseiBot Logo" />
-    <input
-      type="text"
-      id="user-input"
-      placeholder="Ask something..."
-      onfocus="this.value='';"
-    />
+  <div class="container">
+    <div class="logo-title">
+      <img src="public/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
+      <h1 class="title">Ask PoseiBot</h1>
+    </div>
+    <div class="chat-box" id="chatBox"></div>
+    <form id="chatForm" class="chat-form">
+      <input type="text" id="userInput" class="input" placeholder="Ask something..." autocomplete="off"/>
+      <button type="submit" class="send-btn">Send</button>
+    </form>
   </div>
-  <button id="send-button">Send</button>
-  <div id="chat-response" class="chat-bubble"></div>
-
   <script>
-    const input = document.getElementById('user-input');
-    const button = document.getElementById('send-button');
-    const response = document.getElementById('chat-response');
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("userInput");
+    const chatBox = document.getElementById("chatBox");
 
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+    input.addEventListener("focus", () => {
+      input.value = "";
     });
 
-    button.addEventListener('click', sendMessage);
-
-    function sendMessage() {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
       const message = input.value.trim();
       if (!message) return;
 
-      response.textContent = 'PoseiBot is typing...';
-      fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      chatBox.innerHTML += `<div class="bubble user-bubble">${message}</div>`;
+      chatBox.innerHTML += `<div class="bubble typing-bubble">Typing...</div>`;
+      input.value = "";
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          response.innerHTML = data.reply.replace(/\n/g, '<br>');
-        })
-        .catch((err) => {
-          response.textContent = 'Error fetching response.';
-          console.error(err);
-        });
-    }
+      });
+      const data = await response.json();
+      document.querySelector(".typing-bubble").remove();
+      chatBox.innerHTML += `<div class="bubble bot-bubble">${data.response}</div>`;
+    });
   </script>
 </body>
 </html>
