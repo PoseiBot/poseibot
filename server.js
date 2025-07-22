@@ -1,119 +1,88 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
 const { ChatOpenAI } = require('@langchain/openai');
-const { ChatPromptTemplate } = require('@langchain/core/prompts');
-const { RunnablePassthrough, RunnableMap, RunnableSequence } = require('@langchain/core/runnables');
+const { ChatPromptTemplate, MessagesPlaceholder } = require('@langchain/core/prompts');
+const { RunnableSequence } = require('@langchain/core/runnables');
+require('dotenv').config();
 
-dotenv.config();
-const app = express();
-const port = process.env.PORT || 10000;
-
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 텍스트 파일 로드
+// 로그용 파일 로딩 함수
 function loadText(filePath) {
   try {
-    return fs.readFileSync(path.join(__dirname, filePath), 'utf-8');
+    return fs.readFileSync(filePath, 'utf8');
   } catch (err) {
-    console.error(`파일을 불러오는 중 오류 발생: ${filePath}`);
+    console.error(`Error reading ${filePath}:`, err.message);
     return '';
   }
 }
 
-const poseidonChronicle = loadText('poseidon_chronicle.txt');
-const tokenInfo = loadText('poseidon_token_info.txt');
-const waveRiderGuide = loadText('waveRider_guide.txt');
-const poseidonNews = loadText('poseidon_news.txt');
+// 텍스트 파일 로딩 (절대경로 사용 권장)
+const poseidonChronicle = loadText(path.join(__dirname, 'poseidon_chronicle.txt'));
+const tokenInfo = loadText(path.join(__dirname, 'poseidon_token_info.txt'));
+const waveRiderGuide = loadText(path.join(__dirname, 'waveRider_guide.txt'));
+const poseidonNews = loadText(path.join(__dirname, 'poseidon_news.txt'));
 
-const SYSTEM_PROMPT = `
-You are PoseiBot, an assistant for the Poseidon token ecosystem.
-Use the following context to answer questions naturally like a friendly assistant, without being overly robotic.
+// ✅ 로딩 결과 로그
+console.log('[파일 불러오기 확인]');
+console.log('poseidonChronicle:', poseidonChronicle.length, '자');
+console.log('tokenInfo:', tokenInfo.length, '자');
+console.log('waveRiderGuide:', waveRiderGuide.length, '자');
+console.log('poseidonNews:', poseidonNews.length, '자');
 
-[Chronicle]
-${poseidonChronicle}
+const app = express();
+const port = process.env.PORT || 10000;
 
-[Token Info]
-${tokenInfo}
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-[WaveRider Guide]
-${waveRiderGuide}
-
-[Poseidon News]
-${poseidonNews}
-`;
-
+// OpenAI Chat 설정
 const model = new ChatOpenAI({
-  temperature: 0.7,
   openAIApiKey: process.env.OPENAI_API_KEY,
+  modelName: 'gpt-4o',
+  temperature: 0.5,
 });
 
+// 프롬프트 템플릿
 const prompt = ChatPromptTemplate.fromMessages([
-  ['system', SYSTEM_PROMPT],
-  ['human', '{question}'],
+  ['system', `너는 PoseiBot이라는 이름의 AI로, Poseidon 토큰 생태계에 대해 전문적으로 답변하는 역할이야. 다음 정보를 기반으로 사용자 질문에 친절하고 자연스럽게 응답해:
+
+[Poseidon 세계관 정보]
+${poseidonChronicle}
+
+[Poseidon 토큰 정보]
+${tokenInfo}
+
+[WaveRider 가이드 정보]
+${waveRiderGuide}
+
+[내부 뉴스 / 검색어가 뉴스 관련일 경우 참고됨]
+${poseidonNews}
+`],
+  new MessagesPlaceholder('chat_history'),
+  ['user', '{input}'],
 ]);
 
 const chain = prompt.pipe(model);
 
-async function fetchSerperSearch(query) {
-  const config = {
-    method: 'post',
-    url: 'https://google.serper.dev/search',
-    headers: {
-      'X-API-KEY': process.env.SERPER_API_KEY,
-      'Content-Type': 'application/json',
-    },
-    data: JSON.stringify({ q: query }),
-  };
-
-  try {
-    const response = await axios.request(config);
-    return response.data;
-  } catch (error) {
-    console.error('Serper API Error:', error.message);
-    return null;
-  }
-}
-
-function summarizeSearchResults(data) {
-  if (!data || !data.organic) return 'No results found.';
-  const topResults = data.organic.slice(0, 3);
-  return topResults.map((item, i) =>
-    `${i + 1}. ${item.title}\n${item.link}`
-  ).join('\n\n');
-}
-
+// API 엔드포인트
 app.post('/chat', async (req, res) => {
-  const { message } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ answer: 'No input provided.' });
-  }
-
-  const isSearchQuery = /뉴스|news|latest|최근|search|검색|정보|기사|링크/i.test(message);
+  const { messages } = req.body;
+  if (!messages) return res.status(400).json({ error: 'Missing messages field' });
 
   try {
-    if (isSearchQuery) {
-      const results = await fetchSerperSearch(message);
-      const searchReply = summarizeSearchResults(results) || 'No relevant search results found.';
-      return res.json({ answer: searchReply });
-    }
+    const response = await chain.invoke({
+      input: messages[messages.length - 1].content,
+      chat_history: messages.slice(0, -1),
+    });
 
-    const input = { question: message };
-    const output = await chain.invoke(input);
-    res.json({ answer: output.content });
-  } catch (error) {
-    console.error('Chat error:', error.message);
-    res.status(500).json({ answer: 'Sorry, something went wrong.' });
+    res.json({ answer: response.content }); // 🛠️ 'reply' → 'answer'로 고정
+  } catch (err) {
+    console.error('Error generating response:', err.message);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
