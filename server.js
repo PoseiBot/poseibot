@@ -1,77 +1,106 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
+const dotenv = require('dotenv');
 const { ChatOpenAI } = require('@langchain/openai');
-const { ChatPromptTemplate, MessagesPlaceholder } = require('@langchain/core/prompts');
 const { RunnableSequence } = require('@langchain/core/runnables');
-require('dotenv').config();
+const { ChatPromptTemplate } = require('@langchain/core/prompts');
+const { Serper } = require('@langchain/community/tools/serper');
+const { DynamicTool } = require('@langchain/core/tools');
+const { AgentExecutor, createOpenAIFunctionsAgent } = require('langchain/agents');
+const { pull } = require('langchain/hub');
 
-// 텍스트 파일 로딩
-function loadText(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (err) {
-    console.error(`Error reading ${filePath}:`, err.message);
-    return '';
-  }
-}
-
-const poseidonChronicle = loadText(path.join(__dirname, 'poseidon_chronicle.txt'));
-const tokenInfo = loadText(path.join(__dirname, 'poseidon_token_info.txt'));
-const waveRiderGuide = loadText(path.join(__dirname, 'waveRider_guide.txt'));
-const poseidonNews = loadText(path.join(__dirname, 'poseidon_news.txt'));
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 10000;
 
 app.use(cors());
-app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+
+const poseidonChronicle = fs.readFileSync('poseidon_chronicle.txt', 'utf8');
+const tokenInfo = fs.readFileSync('poseidon_token_info.txt', 'utf8');
+const waveRiderGuide = fs.readFileSync('waveRider_guide.txt', 'utf8');
+const poseidonNews = fs.readFileSync('poseidon_news.txt', 'utf8');
 
 const model = new ChatOpenAI({
-  openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: 'gpt-4o',
-  temperature: 0.5,
+  temperature: 0.7,
 });
 
-const prompt = ChatPromptTemplate.fromMessages([
-  ['system', `너는 PoseiBot이라는 이름의 AI로, Poseidon 토큰 생태계에 대해 전문적으로 답변하는 역할이야. 다음 정보를 기반으로 사용자 질문에 친절하고 자연스럽게 응답해:
+const txtPrompt = ChatPromptTemplate.fromMessages([
+  ['system', `
+You are PoseiBot, an expert on the Poseidon token ecosystem. Use only the information below to answer questions. If the answer is not found, say you don't know.
 
-[Poseidon 세계관 정보]
+[Poseidon Chronicle]
 ${poseidonChronicle}
 
-[Poseidon 토큰 정보]
+[Poseidon Token Info]
 ${tokenInfo}
 
-[WaveRider 가이드 정보]
+[WaveRider Guide]
 ${waveRiderGuide}
 
-[내부 뉴스 / 검색어가 뉴스 관련일 경우 참고됨]
+[Poseidon News]
 ${poseidonNews}
-`],
-  new MessagesPlaceholder('chat_history'),
-  ['user', '{input}'],
+  `],
+  ['human', '{input}'],
 ]);
 
-const chain = prompt.pipe(model);
+const txtChain = RunnableSequence.from([
+  txtPrompt,
+  model,
+]);
+
+const txtTool = new DynamicTool({
+  name: 'poseidon_text_lookup',
+  description: 'Use this tool to answer questions about the Poseidon ecosystem',
+  func: async (input) => {
+    const res = await txtChain.invoke({ input });
+    return res.content;
+  },
+});
+
+const tools = [
+  new Serper({ k: 5 }),
+  txtTool,
+];
 
 app.post('/chat', async (req, res) => {
-  const { messages } = req.body;
-  if (!messages) return res.status(400).json({ error: 'Missing messages field' });
-
   try {
-    const response = await chain.invoke({
-      input: messages[messages.length - 1].content,
-      chat_history: messages.slice(0, -1),
+    const input = req.body.message;
+    const searchKeywords = ['뉴스', 'news', '업데이트', '기사', 'latest'];
+
+    const useSerper = searchKeywords.some(word => input.toLowerCase().includes(word));
+
+    const selectedTools = useSerper ? tools : [txtTool];
+
+    const prompt = await pull('hwchase17/openai-functions-agent');
+    const agent = await createOpenAIFunctionsAgent({
+      llm: model,
+      tools: selectedTools,
+      prompt,
     });
 
-    res.json({ answer: response.content });
+    const executor = new AgentExecutor({
+      agent,
+      tools: selectedTools,
+    });
+
+    const result = await executor.invoke({ input });
+
+    res.json({ answer: result.output });
   } catch (err) {
-    console.error('Error generating response:', err.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(err);
+    res.status(500).send('Error processing your request.');
   }
+});
+
+// ✅ 루트 경로에서 index.html 서빙
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
