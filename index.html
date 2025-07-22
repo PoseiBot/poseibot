@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PoseiBot Chat</title>
   <style>
     body {
@@ -11,24 +11,10 @@
       margin: 0;
       background-color: #f9f9f9;
     }
-
     .container {
       max-width: 800px;
       margin: 0 auto;
     }
-
-    h1 {
-      display: flex;
-      align-items: center;
-      font-size: 1.5em;
-      margin-bottom: 10px;
-    }
-
-    h1::before {
-      content: "💬";
-      margin-right: 10px;
-    }
-
     textarea {
       width: 100%;
       height: 100px;
@@ -37,14 +23,12 @@
       resize: vertical;
       box-sizing: border-box;
     }
-
     button {
       margin-top: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
     }
-
     #response {
       margin-top: 20px;
       background: #fff;
@@ -53,40 +37,28 @@
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
       white-space: pre-wrap;
     }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-
-      h1 {
-        font-size: 1.2em;
-      }
-
-      textarea {
-        height: 80px;
-        font-size: 14px;
-      }
-
-      button {
-        width: 100%;
-        font-size: 14px;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Ask PoseiBot</h1>
-    <textarea id="userInput" placeholder="Ask anything..."></textarea><br />
+    <textarea id="userInput" placeholder="Ask anything..." onfocus="clearInput(this)"></textarea><br/>
     <button onclick="sendMessage()">Send</button>
     <div id="response"></div>
   </div>
 
   <script>
+    const inputBox = document.getElementById("userInput");
+    const resBox = document.getElementById("response");
+
+    function clearInput(el) {
+      el.value = "";
+    }
+
     async function sendMessage() {
-      const input = document.getElementById("userInput").value;
-      const resBox = document.getElementById("response");
+      const input = inputBox.value.trim();
+      if (!input) return;
+
       resBox.innerText = "⌛ Thinking...";
 
       try {
@@ -102,6 +74,13 @@
         resBox.innerText = "❌ Error: " + err.message;
       }
     }
+
+    inputBox.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>

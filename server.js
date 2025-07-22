@@ -10,18 +10,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// 기본 페이지
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 외부 검색이 필요한 질문인지 판단
 function isSearchIntent(text) {
   const keywords = ['news', 'latest', 'update', '소식', '뉴스', '최근', '기사', '정보'];
   return keywords.some(keyword => text.toLowerCase().includes(keyword));
 }
 
-// 포세이돈 세계관 지식 불러오기
 function loadPoseidonKnowledge() {
   const files = [
     'poseidon_token_info.txt',
@@ -45,19 +42,16 @@ function loadPoseidonKnowledge() {
 
 const poseidonKnowledge = loadPoseidonKnowledge();
 
-// POST /chat 핸들러
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
-
   if (!userMessage) {
-    return res.status(400).json({ reply: '질문이 비어 있어요!' });
+    return res.status(400).json({ reply: 'Message is empty.' });
   }
 
   try {
     let gptMessages;
 
     if (isSearchIntent(userMessage)) {
-      // 🔍 검색 기반 질문이면 → Serper로 웹 검색 후 GPT 요약
       const serperRes = await fetch('https://google.serper.dev/search', {
         method: 'POST',
         headers: {
@@ -71,7 +65,7 @@ app.post('/chat', async (req, res) => {
       const topResults = serperData.organic?.slice(0, 3) || [];
 
       if (topResults.length === 0) {
-        return res.json({ reply: '관련된 웹 검색 결과를 찾지 못했어요. 😢' });
+        return res.json({ reply: 'No relevant search results found.' });
       }
 
       const webContext = topResults
@@ -82,7 +76,7 @@ app.post('/chat', async (req, res) => {
         {
           role: 'system',
           content:
-            `You are PoseiBot, a friendly assistant from the Poseidon project. Speak like a helpful, curious, and light-hearted guide. Use the web search results below to answer naturally and clearly:\n\n${webContext}`
+            `You are PoseiBot, a friendly assistant of the Poseidon project. Speak warmly, informally, and avoid sounding robotic. Use the search results below to answer clearly. If information is uncertain, say so, and mention the bot is still in beta.\n\n${webContext}`
         },
         {
           role: 'user',
@@ -90,12 +84,11 @@ app.post('/chat', async (req, res) => {
         }
       ];
     } else {
-      // 🤖 일반 질문이면 → Poseidon 세계관 + GPT 응답
       gptMessages = [
         {
           role: 'system',
           content:
-            `You are PoseiBot 🌊, a friendly and helpful assistant representing the Poseidon project. Speak casually and warmly, like a friendly team member. Use the following knowledge to answer:\n${poseidonKnowledge}`
+            `You are PoseiBot 🌊, a friendly and helpful assistant representing the Poseidon project. Speak casually like a team member. If something is unclear, say so politely. Mention the bot is in beta when appropriate. Use this knowledge:\n${poseidonKnowledge}`
         },
         {
           role: 'user',
@@ -118,12 +111,18 @@ app.post('/chat', async (req, res) => {
     });
 
     const gptData = await gptRes.json();
-    const reply = gptData.choices?.[0]?.message?.content || '응답을 받지 못했어요. 😅';
-    return res.json({ reply });
+    let answer = gptData.choices?.[0]?.message?.content || 'No response received.';
+
+    // 불확실한 응답일 경우 베타 메시지 추가
+    if (/not sure|uncertain|cannot confirm|no information|sorry/i.test(answer)) {
+      answer += `\n\n⚠️ Please note: PoseiBot is currently in beta. This answer is based on available data and may not be fully accurate. We're continuously improving the bot based on real user feedback.`;
+    }
+
+    return res.json({ reply: answer });
 
   } catch (err) {
-    console.error('❌ Error in /chat:', err);
-    return res.status(500).json({ reply: '서버에서 오류가 발생했어요. 잠시 후 다시 시도해 주세요 🙏' });
+    console.error('Error in /chat:', err);
+    return res.status(500).json({ reply: 'Internal server error.' });
   }
 });
 
