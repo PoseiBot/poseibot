@@ -15,41 +15,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 뉴스 키워드 감지
-const newsKeywords = [
-  'news', 'breaking', 'update', 'live', 'today', 'now',
-  'latest', 'headline', 'media', 'article'
-];
-
-const isNewsQuery = (text) => {
-  return newsKeywords.some(keyword => text.toLowerCase().includes(keyword));
-};
-
-// 포세이돈 지식 로딩
-function loadPoseidonKnowledge() {
-  const files = [
-    'poseidon_token_info.txt',
-    'poseidon_chronicle.txt',
-    'waveRider_guide.txt',
-    'poseidon_news.txt'
-  ];
-
-  let knowledge = '';
-  for (const file of files) {
-    try {
-      const content = fs.readFileSync(path.join(__dirname, file), 'utf-8');
-      knowledge += `\n\n[${file}]\n${content}`;
-    } catch (err) {
-      console.warn(`Warning: could not read ${file}`);
-    }
-  }
-
-  return knowledge;
-}
-
-const poseidonKnowledge = loadPoseidonKnowledge();
-
-// 메인 채팅 라우트
+// Handle chat with Serper search + GPT summary
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
@@ -58,40 +24,42 @@ app.post('/chat', async (req, res) => {
   }
 
   try {
-    // 뉴스 쿼리인 경우 Serper 사용
-    if (isNewsQuery(userMessage)) {
-      const response = await fetch('https://google.serper.dev/news', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.SERPER_API_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ q: userMessage })
-      });
+    // Step 1: Serper search API 요청
+    const serperResponse = await fetch('https://google.serper.dev/search', {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': process.env.SERPER_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ q: userMessage })
+    });
 
-      const data = await response.json();
+    const serperData = await serperResponse.json();
 
-      if (data.news && data.news.length > 0) {
-        const topNews = data.news
-          .slice(0, 3)
-          .map(n => `• ${n.title}\n${n.snippet}\n${n.link}`)
-          .join('\n\n');
+    // Step 2: 상위 3~5개 검색 결과 추출
+    const organicResults = serperData.organic?.slice(0, 3) || [];
 
-        return res.json({ reply: topNews });
-      } else {
-        return res.json({ reply: 'No relevant news articles found.' });
-      }
+    if (organicResults.length === 0) {
+      return res.json({ reply: 'No relevant search results found.' });
     }
 
-    // OpenAI로 일반 질문 처리
+    const contextText = organicResults
+      .map((item, idx) => `${idx + 1}. ${item.title}\n${item.snippet}\n${item.link}`)
+      .join('\n\n');
+
+    // Step 3: GPT에게 요약 지시
     const messages = [
       {
         role: 'system',
-        content: `You are PoseiBot, an assistant specialized in Poseidon world-building, tokens, and characters. Use the following background information to answer questions accurately:\n${poseidonKnowledge}`
+        content:
+          `You are PoseiBot, an assistant that answers questions using the following web search results.\n\n` +
+          `Summarize them clearly and include any useful information.`
       },
       {
         role: 'user',
-        content: userMessage
+        content:
+          `Here are the search results for "${userMessage}":\n\n${contextText}\n\n` +
+          `Please summarize the key information for the user.`
       }
     ];
 
@@ -109,8 +77,13 @@ app.post('/chat', async (req, res) => {
     });
 
     const chatData = await chatResponse.json();
-    const answer = chatData.choices?.[0]?.message?.content || 'No response received.';
-    return res.json({ reply: answer });
+    const answer = chatData.choices?.[0]?.message?.content || 'No answer received.';
+
+    // Step 4: GPT 응답 + 출처 링크 표시
+    const links = organicResults.map(r => r.link).join('\n');
+    const finalReply = `${answer}\n\n📎 Sources:\n${links}`;
+
+    return res.json({ reply: finalReply });
 
   } catch (error) {
     console.error('Error in /chat:', error);
