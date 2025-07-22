@@ -10,60 +10,101 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// Serve index.html
+// 기본 페이지
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Handle chat with Serper search + GPT summary
+// 외부 검색이 필요한 질문인지 판단
+function isSearchIntent(text) {
+  const keywords = ['news', 'latest', 'update', '소식', '뉴스', '최근', '기사', '정보'];
+  return keywords.some(keyword => text.toLowerCase().includes(keyword));
+}
+
+// 포세이돈 세계관 지식 불러오기
+function loadPoseidonKnowledge() {
+  const files = [
+    'poseidon_token_info.txt',
+    'poseidon_chronicle.txt',
+    'waveRider_guide.txt',
+    'poseidon_news.txt'
+  ];
+
+  let knowledge = '';
+  for (const file of files) {
+    try {
+      const content = fs.readFileSync(path.join(__dirname, file), 'utf-8');
+      knowledge += `\n\n[${file}]\n${content}`;
+    } catch (err) {
+      console.warn(`Warning: could not read ${file}`);
+    }
+  }
+
+  return knowledge;
+}
+
+const poseidonKnowledge = loadPoseidonKnowledge();
+
+// POST /chat 핸들러
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   if (!userMessage) {
-    return res.status(400).json({ reply: 'Missing message content.' });
+    return res.status(400).json({ reply: '질문이 비어 있어요!' });
   }
 
   try {
-    // Step 1: Serper search API 요청
-    const serperResponse = await fetch('https://google.serper.dev/search', {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': process.env.SERPER_API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ q: userMessage })
-    });
+    let gptMessages;
 
-    const serperData = await serperResponse.json();
+    if (isSearchIntent(userMessage)) {
+      // 🔍 검색 기반 질문이면 → Serper로 웹 검색 후 GPT 요약
+      const serperRes = await fetch('https://google.serper.dev/search', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': process.env.SERPER_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ q: userMessage })
+      });
 
-    // Step 2: 상위 3~5개 검색 결과 추출
-    const organicResults = serperData.organic?.slice(0, 3) || [];
+      const serperData = await serperRes.json();
+      const topResults = serperData.organic?.slice(0, 3) || [];
 
-    if (organicResults.length === 0) {
-      return res.json({ reply: 'No relevant search results found.' });
+      if (topResults.length === 0) {
+        return res.json({ reply: '관련된 웹 검색 결과를 찾지 못했어요. 😢' });
+      }
+
+      const webContext = topResults
+        .map((item, i) => `${i + 1}. ${item.title}\n${item.snippet}\n${item.link}`)
+        .join('\n\n');
+
+      gptMessages = [
+        {
+          role: 'system',
+          content:
+            `You are PoseiBot, a friendly assistant from the Poseidon project. Speak like a helpful, curious, and light-hearted guide. Use the web search results below to answer naturally and clearly:\n\n${webContext}`
+        },
+        {
+          role: 'user',
+          content: userMessage
+        }
+      ];
+    } else {
+      // 🤖 일반 질문이면 → Poseidon 세계관 + GPT 응답
+      gptMessages = [
+        {
+          role: 'system',
+          content:
+            `You are PoseiBot 🌊, a friendly and helpful assistant representing the Poseidon project. Speak casually and warmly, like a friendly team member. Use the following knowledge to answer:\n${poseidonKnowledge}`
+        },
+        {
+          role: 'user',
+          content: userMessage
+        }
+      ];
     }
 
-    const contextText = organicResults
-      .map((item, idx) => `${idx + 1}. ${item.title}\n${item.snippet}\n${item.link}`)
-      .join('\n\n');
-
-    // Step 3: GPT에게 요약 지시
-    const messages = [
-      {
-        role: 'system',
-        content:
-          `You are PoseiBot, an assistant that answers questions using the following web search results.\n\n` +
-          `Summarize them clearly and include any useful information.`
-      },
-      {
-        role: 'user',
-        content:
-          `Here are the search results for "${userMessage}":\n\n${contextText}\n\n` +
-          `Please summarize the key information for the user.`
-      }
-    ];
-
-    const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -71,26 +112,21 @@ app.post('/chat', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'gpt-4o',
-        messages: messages,
+        messages: gptMessages,
         temperature: 0.7,
       }),
     });
 
-    const chatData = await chatResponse.json();
-    const answer = chatData.choices?.[0]?.message?.content || 'No answer received.';
+    const gptData = await gptRes.json();
+    const reply = gptData.choices?.[0]?.message?.content || '응답을 받지 못했어요. 😅';
+    return res.json({ reply });
 
-    // Step 4: GPT 응답 + 출처 링크 표시
-    const links = organicResults.map(r => r.link).join('\n');
-    const finalReply = `${answer}\n\n📎 Sources:\n${links}`;
-
-    return res.json({ reply: finalReply });
-
-  } catch (error) {
-    console.error('Error in /chat:', error);
-    return res.status(500).json({ reply: 'Internal server error.' });
+  } catch (err) {
+    console.error('❌ Error in /chat:', err);
+    return res.status(500).json({ reply: '서버에서 오류가 발생했어요. 잠시 후 다시 시도해 주세요 🙏' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`✅ PoseiBot is running at http://localhost:${PORT}`);
 });
