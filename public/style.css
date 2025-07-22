@@ -1,106 +1,80 @@
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to bottom, #041C40, #043f6c);
-  color: #fff;
+  background: linear-gradient(to bottom, #031f4b, #04396c);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .container {
+  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  text-align: center;
+  margin-top: 20px;
 }
 
-.logo-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
+.chat-bubble {
+  background-color: #222;
+  color: #fff;
+  border-radius: 20px;
+  padding: 12px 20px;
+  margin: 10px 0;
+  max-width: 90%;
+  word-wrap: break-word;
 }
 
-.logo {
-  width: 40px;
-  height: 40px;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: bold;
+.chat-bubble.user {
+  background-color: #007bff;
+  align-self: flex-end;
   color: white;
 }
 
-.chat-box {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.chat-bubble.bot {
+  background-color: #2c2c2c;
+  align-self: flex-start;
 }
 
-.bubble {
-  max-width: 70%;
-  margin: 0 auto;
-  padding: 12px 18px;
-  border-radius: 20px;
-  font-size: 15px;
-  word-wrap: break-word;
-  line-height: 1.5;
-  text-align: left;
+input[type="text"] {
+  padding: 10px;
+  width: 70%;
+  max-width: 400px;
+  border-radius: 10px;
+  border: none;
+  margin-right: 10px;
+  font-size: 16px;
 }
 
-.user-bubble {
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
   background-color: #007bff;
   color: white;
-  align-self: flex-end;
-}
-
-.bot-bubble {
-  background-color: #1f2b3a;
-  color: white;
-  align-self: flex-start;
-}
-
-.typing-bubble {
-  background-color: #333;
-  font-style: italic;
-  color: #aaa;
-  align-self: flex-start;
-}
-
-.chat-form {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-}
-
-.input {
-  flex-grow: 1;
-  padding: 10px 16px;
-  font-size: 15px;
-  border: none;
-  border-radius: 25px;
-  outline: none;
-  background-color: #22314a;
-  color: white;
-  width: 60%;
-  max-width: 500px;
-}
-
-.send-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: bold;
-  background-color: #00aaff;
-  color: white;
-  border: none;
-  border-radius: 25px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
-.send-btn:hover {
-  background-color: #007acc;
+button:hover {
+  background-color: #0056b3;
+}
+
+/* 반응형 모바일 */
+@media (max-width: 600px) {
+  input[type="text"] {
+    width: 60%;
+  }
+
+  button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .chat-bubble {
+    font-size: 14px;
+  }
 }
