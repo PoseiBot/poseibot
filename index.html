@@ -3,48 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PoseiBot Chat</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>PoseiBot</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container">
-    <div class="logo-title">
-      <img src="public/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
-      <h1 class="title">Ask PoseiBot</h1>
+    <img src="/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
+    <h1>Ask PoseiBot</h1>
+
+    <div class="chat-container">
+      <div id="chat-box"></div>
+      <div class="input-container">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Ask something..."
+          autocomplete="off"
+        />
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
-    <div class="chat-box" id="chatBox"></div>
-    <form id="chatForm" class="chat-form">
-      <input type="text" id="userInput" class="input" placeholder="Ask something..." autocomplete="off"/>
-      <button type="submit" class="send-btn">Send</button>
-    </form>
   </div>
+
   <script>
-    const form = document.getElementById("chatForm");
-    const input = document.getElementById("userInput");
-    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("user-input");
+    const chatBox = document.getElementById("chat-box");
 
-    input.addEventListener("focus", () => {
-      input.value = "";
+    userInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
     });
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const message = input.value.trim();
-      if (!message) return;
+    userInput.addEventListener("focus", () => {
+      userInput.value = "";
+    });
 
-      chatBox.innerHTML += `<div class="bubble user-bubble">${message}</div>`;
-      chatBox.innerHTML += `<div class="bubble typing-bubble">Typing...</div>`;
-      input.value = "";
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message === "") return;
 
-      const response = await fetch("/chat", {
+      appendMessage("user", message);
+      userInput.value = "";
+
+      appendMessage("bot", "Typing...");
+
+      fetch("/ask", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
-      const data = await response.json();
-      document.querySelector(".typing-bubble").remove();
-      chatBox.innerHTML += `<div class="bubble bot-bubble">${data.response}</div>`;
-    });
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question: message }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.querySelectorAll(".bot").forEach((el) => {
+            if (el.textContent === "Typing...") {
+              el.remove();
+            }
+          });
+          appendMessage("bot", data.answer);
+        })
+        .catch((err) => {
+          appendMessage("bot", "Error: " + err.message);
+        });
+    }
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.textContent = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
   </script>
 </body>
 </html>
