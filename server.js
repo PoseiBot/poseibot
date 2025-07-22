@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config();
 
 const app = express();
@@ -10,19 +10,22 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// Serve index.html at root
+// Serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// 뉴스 키워드 감지
 const newsKeywords = [
-  'news', 'breaking', 'update', 'live', 'today', 'now', 'latest', 'headline', 'media', 'article'
+  'news', 'breaking', 'update', 'live', 'today', 'now',
+  'latest', 'headline', 'media', 'article'
 ];
 
 const isNewsQuery = (text) => {
-  return newsKeywords.some((keyword) => text.toLowerCase().includes(keyword));
+  return newsKeywords.some(keyword => text.toLowerCase().includes(keyword));
 };
 
+// 포세이돈 지식 로딩
 function loadPoseidonKnowledge() {
   const files = [
     'poseidon_token_info.txt',
@@ -46,6 +49,7 @@ function loadPoseidonKnowledge() {
 
 const poseidonKnowledge = loadPoseidonKnowledge();
 
+// 메인 채팅 라우트
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
@@ -54,6 +58,7 @@ app.post('/chat', async (req, res) => {
   }
 
   try {
+    // 뉴스 쿼리인 경우 Serper 사용
     if (isNewsQuery(userMessage)) {
       const response = await fetch('https://google.serper.dev/news', {
         method: 'POST',
@@ -78,6 +83,7 @@ app.post('/chat', async (req, res) => {
       }
     }
 
+    // OpenAI로 일반 질문 처리
     const messages = [
       {
         role: 'system',
@@ -105,6 +111,7 @@ app.post('/chat', async (req, res) => {
     const chatData = await chatResponse.json();
     const answer = chatData.choices?.[0]?.message?.content || 'No response received.';
     return res.json({ reply: answer });
+
   } catch (error) {
     console.error('Error in /chat:', error);
     return res.status(500).json({ reply: 'Internal server error.' });
