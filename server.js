@@ -1,47 +1,89 @@
+require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
-const dotenv = require('dotenv');
 const { OpenAI } = require('openai');
-
-dotenv.config();
+const fetch = require('node-fetch');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// 정적 파일 서빙 (index.html 포함)
-app.use(express.static(path.join(__dirname)));
-
-// JSON 파싱
+app.use(express.static('public'));
 app.use(express.json());
 
-// POST /chat → OpenAI에 질문 보내기
+// English keywords to detect news-related queries
+const newsKeywords = [
+  'news', 'headline', 'breaking', 'today', 'now', 'latest', 'just in', 'press', 'article'
+];
+
+function isNewsQuery(text) {
+  return newsKeywords.some(keyword => text.toLowerCase().includes(keyword));
+}
+
+// Read Poseidon info from .txt files
+function loadPoseidonInfo() {
+  const files = [
+    'poseidon_token_info.txt',
+    'poseidon_chronicle.txt',
+    'waveRider_guide.txt',
+    'poseidon_news.txt',
+  ];
+  const fileContents = files.map(file => {
+    const fullPath = path.join(__dirname, file);
+    return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf-8') : '';
+  });
+  return fileContents.join('\n\n');
+}
+
+// Use Serper for real-time search
+async function searchWithSerper(query) {
+  const response = await fetch('https://google.serper.dev/search', {
+    method: 'POST',
+    headers: {
+      'X-API-KEY': process.env.SERPER_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ q: query }),
+  });
+
+  const data = await response.json();
+  return data;
+}
+
 app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
-
-  if (!userMessage) {
-    return res.status(400).json({ error: 'No message provided' });
-  }
-
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: userMessage }],
+    const { message } = req.body;
+
+    let systemPrompt = '';
+    let userPrompt = message;
+
+    if (isNewsQuery(message)) {
+      const searchResults = await searchWithSerper(message);
+      const formattedResults = searchResults.organic?.map(r => `- ${r.title}\n${r.snippet}`).join('\n') || 'No relevant search results.';
+      systemPrompt = `You are a helpful assistant who summarizes news based on the following search results:\n${formattedResults}`;
+    } else {
+      const poseidonData = loadPoseidonInfo();
+      systemPrompt = `You are PoseiBot, a helpful assistant. Use the following Poseidon universe and token information to answer the user's question:\n${poseidonData}`;
+    }
+
+    const chatCompletion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      model: 'gpt-4o'
     });
 
-    const reply = response.choices[0].message.content;
+    const reply = chatCompletion.choices[0].message.content;
     res.json({ reply });
-  } catch (error) {
-    console.error('OpenAI error:', error);
-    res.status(500).json({ error: 'Failed to get response from OpenAI' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
   }
 });
 
-// 서버 시작
 app.listen(port, () => {
-  console.log(`✅ Server is running at http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
