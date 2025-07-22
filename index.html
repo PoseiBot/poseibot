@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <img src="/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
+    <img src="/logo_PoseiBot.png" alt="PoseiBot Logo" class="logo" />
     <h1>Ask PoseiBot</h1>
 
     <div class="chat-container">
@@ -48,12 +48,12 @@
 
       appendMessage("bot", "Typing...");
 
-      fetch("/ask", {
+      fetch("/chat", {  // ✅ 여기 수정됨!
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question: message }),
+        body: JSON.stringify({ message }),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -62,7 +62,7 @@
               el.remove();
             }
           });
-          appendMessage("bot", data.answer);
+          appendMessage("bot", data.answer || "🤖 I'm in beta mode and improving daily.");
         })
         .catch((err) => {
           appendMessage("bot", "Error: " + err.message);
