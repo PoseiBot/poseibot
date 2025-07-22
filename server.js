@@ -7,15 +7,14 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files (e.g., index.html, css, etc.)
 app.use(express.static(__dirname));
+app.use(express.json());
 
 // Serve index.html at root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Helper: detect news-related query
 const newsKeywords = [
   'news', 'breaking', 'update', 'live', 'today', 'now', 'latest', 'headline', 'media', 'article'
 ];
@@ -24,7 +23,6 @@ const isNewsQuery = (text) => {
   return newsKeywords.some((keyword) => text.toLowerCase().includes(keyword));
 };
 
-// Load Poseidon knowledge base files
 function loadPoseidonKnowledge() {
   const files = [
     'poseidon_token_info.txt',
@@ -48,36 +46,38 @@ function loadPoseidonKnowledge() {
 
 const poseidonKnowledge = loadPoseidonKnowledge();
 
-// Handle user prompt
-app.get('/ask', async (req, res) => {
-  const query = req.query.q;
+app.post('/chat', async (req, res) => {
+  const userMessage = req.body.message;
 
-  if (!query) {
-    return res.status(400).send('Missing query');
+  if (!userMessage) {
+    return res.status(400).json({ reply: 'Missing message content.' });
   }
 
   try {
-    // If it's a news-related query, use Serper API
-    if (isNewsQuery(query)) {
+    if (isNewsQuery(userMessage)) {
       const response = await fetch('https://google.serper.dev/news', {
         method: 'POST',
         headers: {
           'X-API-KEY': process.env.SERPER_API_KEY,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ q: query })
+        body: JSON.stringify({ q: userMessage })
       });
 
       const data = await response.json();
+
       if (data.news && data.news.length > 0) {
-        const topNews = data.news.slice(0, 3).map(n => `• ${n.title} (${n.link})`).join('\n');
-        return res.send(`Here are the top news articles:\n\n${topNews}`);
+        const topNews = data.news
+          .slice(0, 3)
+          .map(n => `• ${n.title}\n${n.snippet}\n${n.link}`)
+          .join('\n\n');
+
+        return res.json({ reply: topNews });
       } else {
-        return res.send('No relevant news articles found.');
+        return res.json({ reply: 'No relevant news articles found.' });
       }
     }
 
-    // Otherwise, use OpenAI with Poseidon knowledge
     const messages = [
       {
         role: 'system',
@@ -85,7 +85,7 @@ app.get('/ask', async (req, res) => {
       },
       {
         role: 'user',
-        content: query
+        content: userMessage
       }
     ];
 
@@ -103,14 +103,14 @@ app.get('/ask', async (req, res) => {
     });
 
     const chatData = await chatResponse.json();
-    const answer = chatData.choices?.[0]?.message?.content || 'No answer received.';
-    res.send(answer);
+    const answer = chatData.choices?.[0]?.message?.content || 'No response received.';
+    return res.json({ reply: answer });
   } catch (error) {
-    console.error('Error handling /ask:', error);
-    res.status(500).send('An error occurred.');
+    console.error('Error in /chat:', error);
+    return res.status(500).json({ reply: 'Internal server error.' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });
