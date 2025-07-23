@@ -14,7 +14,7 @@ function appendMessage(content, type) {
   msg.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Append divider
+// Divider between messages
 function appendDivider() {
   const hr = document.createElement("hr");
   hr.className = "message-divider";
@@ -37,7 +37,7 @@ function removeSpinner() {
   }
 }
 
-// Fetch bot response
+// Send to server
 async function fetchBotResponse(userText) {
   showSpinner();
   try {
@@ -59,7 +59,7 @@ async function fetchBotResponse(userText) {
   }
 }
 
-// Send message
+// Send
 function sendMessage() {
   const userText = input.value.trim();
   if (!userText) return;
@@ -68,7 +68,7 @@ function sendMessage() {
   fetchBotResponse(userText);
 }
 
-// Event listeners
+// Send with Enter
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -76,21 +76,26 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
+// Button click
 sendBtn.addEventListener("click", sendMessage);
 
-// Placeholder clear
+// Clear on focus
 input.addEventListener("focus", () => {
   input.value = "";
 });
 
-// ✅ iOS 대응: 키보드 올라오면 입력창 흔들림 방지
+// ✅ iOS 대응: 키보드 등장 시 layout 밀림 방지
 function adjustInputPosition() {
   const vh = window.innerHeight;
   if (vh < 500) {
     inputContainer.style.position = "absolute";
+    inputContainer.style.bottom = "0";
   } else {
     inputContainer.style.position = "fixed";
+    inputContainer.style.bottom = "0";
   }
 }
 
+// 적용: 리사이즈 + 로드 시점 모두
 window.addEventListener("resize", adjustInputPosition);
+window.addEventListener("DOMContentLoaded", adjustInputPosition);
