@@ -66,14 +66,14 @@ body {
   word-break: break-word;
 }
 
-/* User message (right bubble) */
+/* User message (right bubble, centered text) */
 .message.user {
   align-self: flex-end;
   background-color: #0e4c77;
   color: #fff;
   padding: 8px 16px;
   border-radius: 20px;
-  text-align: right;
+  text-align: center;
 }
 
 /* Bot message (left plain text) */
@@ -93,7 +93,32 @@ body {
   max-width: 800px;
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  margin: 40px auto;
+  margin: 20px auto;
+}
+
+/* Spinner container */
+.message.spinner {
+  background-color: transparent;
+  padding: 12px 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Spinner animation */
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.5); /* 50% 투명도 */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 6px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Fixed input section */

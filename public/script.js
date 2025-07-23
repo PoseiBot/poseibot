@@ -2,24 +2,47 @@ const chat = document.getElementById("chat-box");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send-btn");
 
+let spinnerElement = null;
+
 // Append message bubble
 function appendMessage(content, type) {
   const msg = document.createElement("div");
   msg.className = "message " + type;
   msg.textContent = content;
   chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
+
+  // 🔽 Always scroll new message into view
+  msg.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Append separator
+// Append separator line
 function appendDivider() {
   const hr = document.createElement("hr");
   hr.className = "message-divider";
   chat.appendChild(hr);
 }
 
-// Call backend to handle GPT request
+// Show loading spinner
+function showSpinner() {
+  spinnerElement = document.createElement("div");
+  spinnerElement.className = "message bot spinner";
+  spinnerElement.innerHTML = `<div class="loader"></div>`;
+  chat.appendChild(spinnerElement);
+  spinnerElement.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Remove loading spinner
+function removeSpinner() {
+  if (spinnerElement) {
+    chat.removeChild(spinnerElement);
+    spinnerElement = null;
+  }
+}
+
+// Request GPT response from backend
 async function fetchBotResponse(userText) {
+  showSpinner();
+
   try {
     const response = await fetch("/chat", {
       method: "POST",
@@ -30,17 +53,20 @@ async function fetchBotResponse(userText) {
     });
 
     const data = await response.json();
+    removeSpinner();
+
     const reply = data.answer || "(No response)";
     appendMessage(reply, "bot");
     appendDivider();
   } catch (err) {
     console.error("Server error:", err);
+    removeSpinner();
     appendMessage("⚠️ Failed to get response from server.", "bot");
     appendDivider();
   }
 }
 
-// Send message
+// Send message handler
 function sendMessage() {
   const userText = input.value.trim();
   if (!userText) return;
