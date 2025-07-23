@@ -1,17 +1,25 @@
-/* 전체 배경 설정 */
-body {
+/* ========= 공통 초기화 ========= */
+* {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(to bottom, #021024, #05314d);
   color: #fff;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
   position: relative;
 }
 
-/* 고정 헤더 */
+/* ========= 고정 헤더 ========= */
 #header {
   position: fixed;
   top: 0;
@@ -30,39 +38,40 @@ body {
   object-fit: contain;
 }
 
-/* 채팅 전체 박스 */
+/* ========= 채팅 전체 박스 ========= */
 #chat-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
-  box-sizing: border-box;
-  padding-top: 80px; /* 헤더 높이만큼 */
-  margin-bottom: 80px; /* 입력창 여백 */
+  padding: 20px 16px;
+  padding-top: 100px;
+  margin-bottom: 100px;
   z-index: 2;
-}
-
-/* 챗 내용이 표시될 박스 */
-#chat-box {
   width: 100%;
   max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========= 채팅 메시지 영역 ========= */
+#chat-box {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin-top: 20px;
 }
 
-/* 메시지 공통 스타일 */
+/* ========= 메시지 공통 스타일 ========= */
 .message {
   display: inline-block;
-  max-width: 75%;
+  max-width: 90%;
   min-width: 50px;
   font-size: 15px;
   line-height: 1.5;
   word-wrap: break-word;
-  overflow-wrap: break-word;
   word-break: break-word;
 }
 
@@ -82,32 +91,31 @@ body {
   background-color: transparent;
   color: #ffffff;
   text-align: left;
-  margin-right: auto;
   padding: 0;
   border-radius: 0;
+  margin-right: auto;
 }
 
 /* 구분선 */
 .message-divider {
   width: 100%;
-  max-width: 800px;
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin: 20px auto;
 }
 
-/* 입력창 */
+/* ========= 입력창 영역 ========= */
 #input-container {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
+  max-width: 100vw;
   padding: 12px 0;
   border-top: 1px solid #00446c;
   background-color: #002a47;
   display: flex;
   justify-content: center;
-  box-sizing: border-box;
   z-index: 20;
 }
 
@@ -128,6 +136,8 @@ body {
   background-color: #003b60;
   border: 1px solid #009bd6;
   color: #fff;
+  resize: none;
+  max-width: 100%;
 }
 
 #input:focus {
@@ -142,13 +152,14 @@ body {
   border-radius: 20px;
   font-size: 15px;
   cursor: pointer;
+  max-width: 100%;
 }
 
 #send-btn:hover {
   background-color: #21c1fe;
 }
 
-/* 스피너 */
+/* ========= 로딩 스피너 ========= */
 .spinner {
   width: 24px;
   height: 24px;
@@ -164,7 +175,7 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* 배경 로고 */
+/* ========= 배경 로고 ========= */
 .background-logo {
   position: fixed;
   top: 0;
@@ -180,17 +191,18 @@ body {
   pointer-events: none;
 }
 
-/* iOS Safari 대응 (스타일 기반) */
+/* ========= iOS Safari 대응 ========= */
 @supports (-webkit-touch-callout: none) {
   html, body {
     height: -webkit-fill-available;
   }
 }
 
-/* 반응형 */
+/* ========= 반응형 ========= */
 @media (max-width: 600px) {
   .message {
     font-size: 14px;
+    max-width: 95%;
   }
 
   #send-btn {
@@ -208,11 +220,17 @@ body {
   }
 
   #chat-container {
-    padding-top: 100px;
+    padding-top: 110px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
   .header-logo {
     width: 93%;
     height: auto;
+  }
+
+  #input-container-inner {
+    padding: 0 12px;
   }
 }

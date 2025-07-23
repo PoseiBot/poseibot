@@ -1,6 +1,7 @@
 const chat = document.getElementById("chat-box");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send-btn");
+const inputContainer = document.getElementById("input-container");
 
 let spinnerElement = null;
 
@@ -10,19 +11,17 @@ function appendMessage(content, type) {
   msg.className = "message " + type;
   msg.textContent = content;
   chat.appendChild(msg);
-
-  // Always scroll into view
   msg.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Append divider between Q&A sets
+// Append divider
 function appendDivider() {
   const hr = document.createElement("hr");
   hr.className = "message-divider";
   chat.appendChild(hr);
 }
 
-// Show loading spinner
+// Spinner
 function showSpinner() {
   spinnerElement = document.createElement("div");
   spinnerElement.className = "message bot spinner";
@@ -31,7 +30,6 @@ function showSpinner() {
   spinnerElement.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Remove spinner
 function removeSpinner() {
   if (spinnerElement) {
     chat.removeChild(spinnerElement);
@@ -39,24 +37,19 @@ function removeSpinner() {
   }
 }
 
-// Send user message to backend and fetch response
+// Fetch bot response
 async function fetchBotResponse(userText) {
   showSpinner();
-
   try {
     const response = await fetch("/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: userText })
     });
 
     const data = await response.json();
     removeSpinner();
-
-    const reply = data.answer || "(No response)";
-    appendMessage(reply, "bot");
+    appendMessage(data.answer || "(No response)", "bot");
     appendDivider();
   } catch (err) {
     console.error("Server error:", err);
@@ -70,7 +63,6 @@ async function fetchBotResponse(userText) {
 function sendMessage() {
   const userText = input.value.trim();
   if (!userText) return;
-
   appendMessage(userText, "user");
   input.value = "";
   fetchBotResponse(userText);
@@ -86,7 +78,19 @@ input.addEventListener("keydown", (e) => {
 
 sendBtn.addEventListener("click", sendMessage);
 
-// Clear placeholder on focus
+// Placeholder clear
 input.addEventListener("focus", () => {
   input.value = "";
 });
+
+// ✅ iOS 대응: 키보드 올라오면 입력창 흔들림 방지
+function adjustInputPosition() {
+  const vh = window.innerHeight;
+  if (vh < 500) {
+    inputContainer.style.position = "absolute";
+  } else {
+    inputContainer.style.position = "fixed";
+  }
+}
+
+window.addEventListener("resize", adjustInputPosition);
