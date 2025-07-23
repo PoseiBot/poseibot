@@ -14,14 +14,12 @@ function appendMessage(content, type) {
   msg.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Divider between messages
 function appendDivider() {
   const hr = document.createElement("hr");
   hr.className = "message-divider";
   chat.appendChild(hr);
 }
 
-// Spinner
 function showSpinner() {
   spinnerElement = document.createElement("div");
   spinnerElement.className = "message bot spinner";
@@ -37,7 +35,6 @@ function removeSpinner() {
   }
 }
 
-// Send to server
 async function fetchBotResponse(userText) {
   showSpinner();
   try {
@@ -59,7 +56,6 @@ async function fetchBotResponse(userText) {
   }
 }
 
-// Send
 function sendMessage() {
   const userText = input.value.trim();
   if (!userText) return;
@@ -68,7 +64,6 @@ function sendMessage() {
   fetchBotResponse(userText);
 }
 
-// Send with Enter
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -76,29 +71,27 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
-// Button click
 sendBtn.addEventListener("click", sendMessage);
 
-// Clear on focus
 input.addEventListener("focus", () => {
   input.value = "";
 });
 
-// ✅ iOS 대응: 키보드 등장 시 layout 밀림 방지
-function adjustInputPosition() {
+// ✅ iOS 대응: 키보드 대응 + 확대된 화면 복구
+function forceViewportReset() {
   const vh = window.innerHeight;
-  if (vh < 500) {
-    inputContainer.style.position = "absolute";
-    inputContainer.style.bottom = "0";
-  } else {
-    inputContainer.style.position = "fixed";
-    inputContainer.style.bottom = "0";
-  }
+  inputContainer.style.position = vh < 500 ? "absolute" : "fixed";
+  inputContainer.style.bottom = "0";
 
-  // ✅ 전체 화면 높이 재설정 (상단 로고 복구용)
-  document.documentElement.style.height = `${vh}px`;
-  document.body.style.height = `${vh}px`;
+  // 전체 화면 강제 복구
+  document.documentElement.style.height = vh + "px";
+  document.body.style.height = vh + "px";
 }
 
-window.addEventListener("resize", adjustInputPosition);
-window.addEventListener("DOMContentLoaded", adjustInputPosition);
+// ✅ 키보드 입력 감지 및 복구 처리
+window.addEventListener("resize", forceViewportReset);
+window.addEventListener("DOMContentLoaded", forceViewportReset);
+window.addEventListener("focusin", forceViewportReset);
+window.addEventListener("focusout", () => {
+  setTimeout(forceViewportReset, 100); // 키보드 닫힘 후 복구 딜레이
+});
