@@ -11,11 +11,11 @@ function appendMessage(content, type) {
   msg.textContent = content;
   chat.appendChild(msg);
 
-  // 🔽 Always scroll new message into view
+  // Always scroll into view
   msg.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Append separator line
+// Append divider between Q&A sets
 function appendDivider() {
   const hr = document.createElement("hr");
   hr.className = "message-divider";
@@ -31,7 +31,7 @@ function showSpinner() {
   spinnerElement.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Remove loading spinner
+// Remove spinner
 function removeSpinner() {
   if (spinnerElement) {
     chat.removeChild(spinnerElement);
@@ -39,7 +39,7 @@ function removeSpinner() {
   }
 }
 
-// Request GPT response from backend
+// Send user message to backend and fetch response
 async function fetchBotResponse(userText) {
   showSpinner();
 
@@ -66,7 +66,7 @@ async function fetchBotResponse(userText) {
   }
 }
 
-// Send message handler
+// Send message
 function sendMessage() {
   const userText = input.value.trim();
   if (!userText) return;
@@ -86,26 +86,7 @@ input.addEventListener("keydown", (e) => {
 
 sendBtn.addEventListener("click", sendMessage);
 
+// Clear placeholder on focus
 input.addEventListener("focus", () => {
   input.value = "";
 });
-
-
-// ✅ iOS Safari keyboard push workaround
-function isIOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
-
-if (isIOS()) {
-  const inputContainer = document.getElementById("input-container");
-
-  window.addEventListener("focusin", () => {
-    inputContainer.style.position = "absolute";
-    inputContainer.style.bottom = "auto";
-  });
-
-  window.addEventListener("focusout", () => {
-    inputContainer.style.position = "fixed";
-    inputContainer.style.bottom = "0";
-  });
-}

@@ -180,6 +180,13 @@ body {
   pointer-events: none;
 }
 
+/* iOS Safari 대응 (스타일 기반) */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    height: -webkit-fill-available;
+  }
+}
+
 /* 반응형 */
 @media (max-width: 600px) {
   .message {
