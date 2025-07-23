@@ -34,8 +34,8 @@ function sendMessage() {
     .then((data) => {
       appendMessage(data.answer, "bot");
     })
-    .catch((err) => {
-      appendMessage("❌ 오류가 발생했습니다.", "bot");
+    .catch(() => {
+      appendMessage("⚠️ Failed to get response from the server.", "bot");
     });
 }
 

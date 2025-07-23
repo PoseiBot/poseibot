@@ -22,7 +22,7 @@ body {
   font-size: 30px;
 }
 
-/* 채팅창 */
+/* Chat area */
 .chat-container {
   flex: 1;
   overflow-y: auto;
@@ -32,7 +32,7 @@ body {
   gap: 12px;
 }
 
-/* 메시지 */
+/* Message bubbles */
 .message {
   max-width: 70%;
   padding: 14px 18px;
@@ -56,13 +56,13 @@ body {
   padding: 0;
 }
 
-/* 구분선 */
+/* Separator between QA pairs */
 .separator {
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   margin: 16px 0;
 }
 
-/* 입력 영역 */
+/* Input area */
 .input-area {
   display: flex;
   align-items: center;
@@ -106,7 +106,7 @@ body {
   background-color: #21c1fe;
 }
 
-/* ✅ 반응형 (모바일) */
+/* Responsive for mobile */
 @media (max-width: 600px) {
   .chat-container {
     padding: 12px;
