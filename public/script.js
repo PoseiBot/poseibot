@@ -5,7 +5,6 @@ const inputContainer = document.getElementById("input-container");
 
 let spinnerElement = null;
 
-// Append message bubble
 function appendMessage(content, type) {
   const msg = document.createElement("div");
   msg.className = "message " + type;
@@ -77,21 +76,16 @@ input.addEventListener("focus", () => {
   input.value = "";
 });
 
-// ✅ iOS 대응: 키보드 대응 + 확대된 화면 복구
-function forceViewportReset() {
-  const vh = window.innerHeight;
-  inputContainer.style.position = vh < 500 ? "absolute" : "fixed";
-  inputContainer.style.bottom = "0";
-
-  // 전체 화면 강제 복구
-  document.documentElement.style.height = vh + "px";
-  document.body.style.height = vh + "px";
+// ✅ iOS Safari 대응 - 화면 확대 후 복구 대응
+function adjustViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  document.body.style.height = `${vh * 100}px`;
 }
 
-// ✅ 키보드 입력 감지 및 복구 처리
-window.addEventListener("resize", forceViewportReset);
-window.addEventListener("DOMContentLoaded", forceViewportReset);
-window.addEventListener("focusin", forceViewportReset);
+window.addEventListener("resize", adjustViewportHeight);
+window.addEventListener("orientationchange", adjustViewportHeight);
+window.addEventListener("DOMContentLoaded", adjustViewportHeight);
 window.addEventListener("focusout", () => {
-  setTimeout(forceViewportReset, 100); // 키보드 닫힘 후 복구 딜레이
+  setTimeout(adjustViewportHeight, 150);
 });
