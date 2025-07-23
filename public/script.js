@@ -1,5 +1,6 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
+const sendBtn = document.getElementById("send-btn"); // ✅ 이 줄 추가!
 
 function appendMessage(content, className) {
   const msg = document.createElement("div");
@@ -36,6 +37,9 @@ input.addEventListener("keydown", e => {
     sendMessage();
   }
 });
+
+// ✅ Send 버튼 클릭 시 전송
+sendBtn.addEventListener("click", sendMessage); // ✅ 이 줄 추가!
 
 // ✅ 포커스 시 입력값 초기화
 input.addEventListener("focus", () => {
