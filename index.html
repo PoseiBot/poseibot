@@ -8,19 +8,24 @@
 </head>
 <body>
   <!-- Fixed Header -->
-  <div class="header">
+  <div id="header">
     <h1>PoseiBot ⭒ AI Agent</h1>
   </div>
 
-  <!-- Chat Area -->
-  <div class="chat-container" id="chat-box"></div>
-
-  <!-- Fixed Input Area -->
-  <div class="input-area">
-    <textarea id="input" placeholder="Ask something..." rows="1"></textarea>
-    <button id="send-btn">Send</button>
+  <!-- Chat Display Area -->
+  <div id="chat-container">
+    <div id="chat-box"></div>
   </div>
 
+  <!-- Fixed Input Field -->
+  <div id="input-container">
+    <div id="input-container-inner">
+      <textarea id="input" placeholder="Ask something..." rows="1"></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <!-- GPT Script Integration -->
   <script src="/script.js"></script>
 </body>
 </html>
