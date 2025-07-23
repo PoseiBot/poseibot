@@ -2,26 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PoseiBot</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="container">
-    <img src="/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
-    <div id="chat-box" class="chat-box"></div>
+  <div class="wrapper">
+    <!-- 상단 고정 헤더 -->
+    <div class="header">
+      <img src="/logo_PoseBot.png" alt="PoseiBot Logo" class="logo" />
+      <h1>PoseiBot ⭒ AI Agent</h1>
+    </div>
+
+    <!-- 채팅 메시지 영역 -->
+    <div class="chat-container" id="chat-box"></div>
+
+    <!-- 하단 입력 영역 -->
     <div class="input-area">
-      <input
-        type="text"
-        id="user-input"
-        placeholder="Ask PoseiBot"
-        autocomplete="off"
-      />
+      <textarea id="input" placeholder="Ask something..." rows="1"></textarea>
       <button id="send-btn">Send</button>
     </div>
   </div>
 
   <script>
-    const input = document.getElementById("user-input");
+    const input = document.getElementById("input");
     const sendBtn = document.getElementById("send-btn");
     const chatBox = document.getElementById("chat-box");
 
@@ -79,7 +83,10 @@
     sendBtn.addEventListener("click", sendMessage);
 
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
     });
 
     input.addEventListener("focus", () => {
