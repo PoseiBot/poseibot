@@ -101,7 +101,7 @@ body {
   background-color: transparent;
   padding: 12px 0;
   display: flex;
-  justify-content: flex-start;
+justify-content: center;  /* ✅ 가운데 정렬로 변경 */
 }
 
 /* Spinner animation */
