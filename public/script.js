@@ -89,3 +89,23 @@ sendBtn.addEventListener("click", sendMessage);
 input.addEventListener("focus", () => {
   input.value = "";
 });
+
+
+// ✅ iOS Safari keyboard push workaround
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+if (isIOS()) {
+  const inputContainer = document.getElementById("input-container");
+
+  window.addEventListener("focusin", () => {
+    inputContainer.style.position = "absolute";
+    inputContainer.style.bottom = "auto";
+  });
+
+  window.addEventListener("focusout", () => {
+    inputContainer.style.position = "fixed";
+    inputContainer.style.bottom = "0";
+  });
+}
