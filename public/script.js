@@ -1,67 +1,43 @@
+const chat = document.getElementById("chat");
 const input = document.getElementById("input");
-const sendBtn = document.getElementById("send-btn");
-const chatBox = document.getElementById("chat-box");
 
-function appendMessage(sender, text) {
+function appendMessage(content, className) {
   const msg = document.createElement("div");
-  msg.className = `bubble ${sender === "user" ? "user-bubble" : "bot-bubble"}`;
-  msg.textContent = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  msg.className = "message " + className;
+  msg.textContent = content;
+  chat.appendChild(msg);
+
+  // ✅ bot 답변 뒤에는 separator 추가
+  if (className === "bot") {
+    const separator = document.createElement("div");
+    separator.className = "separator";
+    chat.appendChild(separator);
+  }
+
+  chat.scrollTop = chat.scrollHeight;
 }
 
-function showTyping() {
-  const typing = document.createElement("div");
-  typing.className = "bubble bot-bubble typing";
-  typing.id = "typing-indicator";
-  typing.textContent = "Typing...";
-  chatBox.appendChild(typing);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function removeTyping() {
-  const typing = document.getElementById("typing-indicator");
-  if (typing) typing.remove();
-}
-
-async function sendMessage() {
-  const userMessage = input.value.trim();
-  if (userMessage === "") return;
-  appendMessage("user", userMessage);
+function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+  appendMessage(text, "user");
   input.value = "";
 
-  showTyping();
-
-  try {
-    const response = await fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage }),
-    });
-
-    const data = await response.json();
-    removeTyping();
-
-    if (data.answer) {
-      appendMessage("bot", data.answer);
-    } else {
-      appendMessage("bot", "Sorry, I didn't understand that.");
-    }
-  } catch (error) {
-    removeTyping();
-    appendMessage("bot", "There was an error. Please try again.");
-  }
+  // GPT 응답 예시
+  setTimeout(() => {
+    appendMessage("GPT 응답 예시: " + text, "bot");
+  }, 600);
 }
 
-sendBtn.addEventListener("click", sendMessage);
-
-input.addEventListener("keydown", (e) => {
+// ✅ Enter 키 전송 (Shift+Enter는 줄바꿈 허용)
+input.addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
 
+// ✅ 포커스 시 입력값 초기화
 input.addEventListener("focus", () => {
   input.value = "";
 });
