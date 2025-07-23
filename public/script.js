@@ -94,8 +94,11 @@ function adjustInputPosition() {
     inputContainer.style.position = "fixed";
     inputContainer.style.bottom = "0";
   }
+
+  // ✅ 전체 화면 높이 재설정 (상단 로고 복구용)
+  document.documentElement.style.height = `${vh}px`;
+  document.body.style.height = `${vh}px`;
 }
 
-// 적용: 리사이즈 + 로드 시점 모두
 window.addEventListener("resize", adjustInputPosition);
 window.addEventListener("DOMContentLoaded", adjustInputPosition);

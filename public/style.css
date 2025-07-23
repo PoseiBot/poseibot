@@ -18,6 +18,7 @@ html, body {
   color: #fff;
   position: fixed; /* ✅ 흔들림 방지 핵심 */
   inset: 0;
+  transition: height 0.3s ease;
 }
 
 /* ========= 고정 헤더 ========= */
