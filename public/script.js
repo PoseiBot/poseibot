@@ -1,6 +1,6 @@
-const chat = document.getElementById("chat-box");  // ✅ 수정됨
+const chat = document.getElementById("chat-box");
 const input = document.getElementById("input");
-const sendBtn = document.getElementById("send-btn"); // ✅ 이 줄 추가!
+const sendBtn = document.getElementById("send-btn");
 
 function appendMessage(content, className) {
   const msg = document.createElement("div");
@@ -8,7 +8,6 @@ function appendMessage(content, className) {
   msg.textContent = content;
   chat.appendChild(msg);
 
-  // ✅ bot 답변 뒤에는 separator 추가
   if (className === "bot") {
     const separator = document.createElement("div");
     separator.className = "separator";
@@ -24,24 +23,31 @@ function sendMessage() {
   appendMessage(text, "user");
   input.value = "";
 
-  // GPT 응답 예시
-  setTimeout(() => {
-    appendMessage("GPT 응답 예시: " + text, "bot");
-  }, 600);
+  fetch("/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message: text }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      appendMessage(data.answer, "bot");
+    })
+    .catch((err) => {
+      appendMessage("❌ 오류가 발생했습니다.", "bot");
+    });
 }
 
-// ✅ Enter 키 전송 (Shift+Enter는 줄바꿈 허용)
-input.addEventListener("keydown", e => {
+input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendMessage();
   }
 });
 
-// ✅ Send 버튼 클릭 시 전송
-sendBtn.addEventListener("click", sendMessage); // ✅ 이 줄 추가!
+sendBtn.addEventListener("click", sendMessage);
 
-// ✅ 포커스 시 입력값 초기화
 input.addEventListener("focus", () => {
   input.value = "";
 });

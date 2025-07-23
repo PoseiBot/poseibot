@@ -1,121 +1,48 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const { ChatOpenAI } = require('@langchain/openai');
-const { ChatPromptTemplate } = require('@langchain/core/prompts');
-const { RunnablePassthrough, RunnableMap, RunnableSequence } = require('@langchain/core/runnables');
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const { Configuration, OpenAIApi } = require("openai");
 
-dotenv.config();
 const app = express();
-const port = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
+// OpenAI 설정 (여기에 본인의 API 키 입력)
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY || "your-openai-api-key",
+});
+const openai = new OpenAIApi(configuration);
+
+// 정적 파일 제공 (public 폴더)
+app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// 텍스트 파일 로드
-function loadText(filePath) {
-  try {
-    return fs.readFileSync(path.join(__dirname, filePath), 'utf-8');
-  } catch (err) {
-    console.error(`파일을 불러오는 중 오류 발생: ${filePath}`);
-    return '';
-  }
-}
-
-const poseidonChronicle = loadText('poseidon_chronicle.txt');
-const tokenInfo = loadText('poseidon_token_info.txt');
-const waveRiderGuide = loadText('waveRider_guide.txt');
-const poseidonNews = loadText('poseidon_news.txt');
-
-const SYSTEM_PROMPT = `
-You are PoseiBot, an assistant for the Poseidon token ecosystem.
-Use the following context to answer questions naturally like a friendly assistant, without being overly robotic.
-
-[Chronicle]
-${poseidonChronicle}
-
-[Token Info]
-${tokenInfo}
-
-[WaveRider Guide]
-${waveRiderGuide}
-
-[Poseidon News]
-${poseidonNews}
-`;
-
-const model = new ChatOpenAI({
-  temperature: 0.7,
-  openAIApiKey: process.env.OPENAI_API_KEY,
+// 메인 HTML 렌더링
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-const prompt = ChatPromptTemplate.fromMessages([
-  ['system', SYSTEM_PROMPT],
-  ['human', '{question}'],
-]);
-
-const chain = prompt.pipe(model);
-
-async function fetchSerperSearch(query) {
-  const config = {
-    method: 'post',
-    url: 'https://google.serper.dev/search',
-    headers: {
-      'X-API-KEY': process.env.SERPER_API_KEY,
-      'Content-Type': 'application/json',
-    },
-    data: JSON.stringify({ q: query }),
-  };
+// ✅ GPT 연동 엔드포인트
+app.post("/chat", async (req, res) => {
+  const userMessage = req.body.message;
 
   try {
-    const response = await axios.request(config);
-    return response.data;
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo", // 또는 gpt-4
+      messages: [
+        { role: "system", content: "당신은 친절한 AI 챗봇입니다." },
+        { role: "user", content: userMessage },
+      ],
+    });
+
+    const answer = completion.data.choices[0].message.content.trim();
+    res.json({ answer });
   } catch (error) {
-    console.error('Serper API Error:', error.message);
-    return null;
-  }
-}
-
-function summarizeSearchResults(data) {
-  if (!data || !data.organic) return 'No results found.';
-  const topResults = data.organic.slice(0, 3);
-  return topResults.map((item, i) =>
-    `${i + 1}. ${item.title}\n${item.link}`
-  ).join('\n\n');
-}
-
-app.post('/chat', async (req, res) => {
-  const { message } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ answer: 'No input provided.' });
-  }
-
-  const isSearchQuery = /뉴스|news|latest|최근|search|검색|정보|기사|링크/i.test(message);
-
-  try {
-    if (isSearchQuery) {
-      const results = await fetchSerperSearch(message);
-      const searchReply = summarizeSearchResults(results) || 'No relevant search results found.';
-      return res.json({ answer: searchReply });
-    }
-
-    const input = { question: message };
-    const output = await chain.invoke(input);
-    res.json({ answer: output.content });
-  } catch (error) {
-    console.error('Chat error:', error.message);
-    res.status(500).json({ answer: 'Sorry, something went wrong.' });
+    console.error("GPT 오류:", error.response?.data || error.message);
+    res.status(500).json({ answer: "❌ GPT 응답 중 오류가 발생했습니다." });
   }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+// 서버 실행
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on http://localhost:${PORT}`);
 });
