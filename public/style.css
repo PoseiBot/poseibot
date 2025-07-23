@@ -195,8 +195,8 @@ html, body {
   }
 }
 
-/* 반응형: 아이폰 대응 */
-@media (max-width: 430px) {
+/* 반응형 */
+@media (max-width: 600px) {
   .message {
     font-size: 14px;
     max-width: 95%;
