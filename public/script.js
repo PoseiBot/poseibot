@@ -63,10 +63,9 @@ function sendMessage() {
   fetchBotResponse(userText);
 }
 
-// ✅ Enter → 전송 + 줄바꿈 방지
 input.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();  // ✅ 줄바꿈 막기
+    e.preventDefault();
     sendMessage();
   }
 });
@@ -77,12 +76,11 @@ input.addEventListener("focus", () => {
   input.value = "";
 });
 
-// ✅ iOS Safari 대응 - 화면 확대 후 복구 대응 + 스크롤 강제 복구
+// ✅ iOS Safari 대응 - 화면 확대 후 복구 대응
 function adjustViewportHeight() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   document.body.style.height = `${vh * 100}px`;
-  window.scrollTo(0, 0);  // ✅ 강제 스크롤 복구
 }
 
 window.addEventListener("resize", adjustViewportHeight);
