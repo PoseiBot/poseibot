@@ -1,4 +1,4 @@
-const chat = document.getElementById("chat");
+const chat = document.getElementById("chat-box");  // ✅ 수정됨
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send-btn"); // ✅ 이 줄 추가!
 
