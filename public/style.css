@@ -41,8 +41,8 @@ body {
   overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
-  padding-top: 80px;
-  margin-bottom: 80px;
+  padding-top: 80px; /* 헤더 높이만큼 */
+  margin-bottom: 80px; /* 입력창 여백 */
   z-index: 2;
 }
 
@@ -75,7 +75,7 @@ body {
   color: #fff;
   padding: 8px 16px;
   border-radius: 20px;
-  text-align: center; /* 가운데 정렬 */
+  text-align: center; /* 짧은 메시지 가운데 정렬 */
 }
 
 /* 봇 메시지 (왼쪽, 말풍선 없음) */
@@ -185,7 +185,7 @@ body {
   background-image: url("/poseidon.png");
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 30%; /* PC 기준 크기 */
+  background-size: 35%; /* PC 기준 크기 */
   opacity: 0.1;
   z-index: 0;
   pointer-events: none;
@@ -208,6 +208,10 @@ body {
   }
 
   .background-logo {
-    background-size: 90%; /* 모바일용 */
+    background-size: 80%; /* 모바일용 */
+  }
+
+  #chat-container {
+    padding-top: 100px; /* 모바일 헤더 보정 */
   }
 }
