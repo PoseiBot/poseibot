@@ -1,82 +1,108 @@
-Poseidon (POSEI) Project Overview – Updated 2025.07
-The Myth Awakens. The Sea Rises.
+## Poseidon (POSEI) Project Overview – Updated 2025.07.25  
+_The Myth Awakens. The Sea Rises._
 
-■ Project Summary
-Poseidon (POSEI) is a meta IP project that expands the world of ancient mythology into the Web3 space.
-It encompasses a wide variety of content, including AI agents, media art, NFTs, and games,
-with the POSEI token serving as the core asset that interconnects the entire ecosystem.
-POSEI plays a multidimensional role across community participation, utility, governance, and rewards. It represents more than just a token—it symbolizes the power of myth.
+---
 
-■ Token Utility
-· Participate in governance voting
-· Mint and trade NFTs
-· Access PoseiVerse events and content
-· Upgrade and interact with AI agents
-· Unlock and empower Poseidon Relics
-· Stake and earn ecosystem rewards
-· Engage in meme campaigns and community incentives
+### 📘 Project Summary  
+Poseidon (POSEI) is a meta IP project that expands the world of ancient mythology into the Web3 space.  
+It encompasses AI agents, media art, NFTs, and games, with the POSEI token serving as the core asset that interconnects the entire ecosystem.  
+POSEI plays a multidimensional role across community participation, utility, governance, and rewards.  
+It represents more than just a token—it symbolizes the power of myth.
 
-■ Ecosystem Components
-Poseidon Museum – On-chain + offline hybrid mythological gallery
-PoseiVerse – Immersive myth-based metaverse
-Poseidon Frames – IP content through animation and webtoon
-PoseiRelics – Lore-infused NFT artifact collection
-PoseiToon – Serialized epic webtoon saga
-PoseiThoughts – Satirical meme comic (4-panel)
-PoseiBeats – Music and festival brand (NFT + IRL)
-PoseiMerch – Branded goods and collaborations
-WaveRiders – Community-driven XP campaign system
+---
 
-■ Tokenomics
-· Token Name: Poseidon
-· Symbol: POSEI
-· Chain: Sui Blockchain
-· Type: Utility & Community Token
-· Total Supply: 10,000,000,000 POSEI
-· Tax: 0% (No buy or sell tax)
+### 🔧 Token Utility  
+- Participate in governance voting  
+- Mint and trade NFTs  
+- Access PoseiVerse events and content  
+- Upgrade and interact with AI agents  
+- Unlock and empower Poseidon Relics  
+- Stake and earn ecosystem rewards  
+- Engage in meme campaigns and community incentives
 
-■ Logo URL:
-Token Logo: https://imgdlvr.com/pic/photoresizer.com/20250630-2582/public
+---
 
-■ Distribution Overview
-· Team: 5% – locked for 1 year
-https://app.streamflow.finance/contract/sui/mainnet/0x52b829f6ad0310a1cdd1e563570ec7808d840a98936be64e6ca858511b73dc12
-· Marketing: 3% – Promotion & partnerships
-· Airdrop: 3% – Community rewards
-· Liquidity Pool: 100% burned – fully decentralized
-· Ownership: Renounced at launch
+### 🌊 Ecosystem Components  
+- **Poseidon Museum** – On-chain + offline hybrid mythological gallery  
+- **PoseiVerse** – Immersive myth-based metaverse  
+- **Poseidon Frames** – IP content via animation and webtoon  
+- **PoseiRelics** – Lore-infused NFT artifact collection  
+- **PoseiToon** – Serialized epic webtoon saga  
+- **PoseiThoughts** – Satirical 4-panel meme comic  
+- **PoseiBeats** – Music and festival brand (NFT + IRL)  
+- **PoseiMerch** – Branded goods and collaborations  
+- **WaveRiders** – Community-driven XP campaign system
 
-■■■■ Lore Integration
-POSEI is a narrative-powered token tied directly to myth.
-· Awakens relic power
-· Unlocks the gates to lost realms
-· Revives Poseidon's memories
+---
+
+### 📊 Tokenomics  
+- **Token Name**: Poseidon  
+- **Symbol**: POSEI  
+- **Chain**: Sui Blockchain  
+- **Type**: Utility & Community Token  
+- **Total Supply**: 10,000,000,000 POSEI  
+- **Tax**: 0% (No buy or sell tax)  
+- **Initial Listing**: 2025-05-14 UTC 07:25 on Cetus DEX  
+- **Liquidity**: 100% burned (fully decentralized)
+
+---
+
+### 🖼 Token Logo  
+Token Logo URL:  
+https://imgdlvr.com/pic/photoresizer.com/20250630-2582/public
+
+---
+
+### 📦 Distribution Overview  
+- **Team**: 5% – Locked for 1 year  
+  https://app.streamflow.finance/contract/sui/mainnet/0x52b8...  
+- **Marketing**: 3% – Promotion & partnerships  
+- **Airdrop**: 3% – Community rewards  
+- **Liquidity Pool**: 100% burned  
+- **Ownership**: Renounced at launch
+
+---
+
+### 🧙 Lore Integration  
+POSEI is a narrative-powered token tied directly to myth.  
+- Awakens relic power  
+- Unlocks the gates to lost realms  
+- Revives Poseidon's memories  
 It acts as the living fuel of myth in a digital age.
 
-■ Current Status (as of 2025)
-· Launched on SUI Mainnet
-· Listed on Cetus DEX (100% liquidity burned)
-· WaveRiders community formed and active
-· Zealy questboard campaign live
-· AI Agent live (Telegram chatbot and Twitter AI Agent)
+---
 
-Upcoming:
-· Release of NFT relic collection
-· Release of Poseidon Web3 game
-· CEX listing discussions in progress
+### 📌 Current Status (as of 2025-07-25)
 
-■ Key Links
-· Official Website: https://poseidon.wiki
-· Official Twitter: https://x.com/poseidon_sui
-· PoseiBot AI Agent: https://poseibot.com
-· PoseiBot Twitter: https://x.com/PoseiBot
-· Telegram Community: https://t.me/poseidon_sui
-· Zealy Questboard: https://zealy.io/c/waveriders
-· Buy POSEI on Cetus:
-https://app.cetus.zone/swap/0x2::sui::SUI/0x72b7...::posei::POSEI
-· Contract Address (CA):
-0x72b7570eb491170efa55f55fa78ad403673be82d5688c01ed1314b60c6f12ec3::posei::POSEI
-· E-mail: team@poseidon.wiki
+✅ **Already Live & Fully Functional**
+- ✅ POSEI token launched on SUI mainnet  
+- ✅ Listed on Cetus DEX (100% liquidity burned)  
+- ✅ Web AI Agent launched → https://poseibot.com  
+- ✅ Telegram chatbot live  
+- ✅ Twitter AI Agent active  
+- ✅ WaveRiders XP campaign system live  
+- ✅ Zealy questboard open → https://zealy.io/c/waveriders  
 
-■ Official Slogan
-Ride the wave. Write the myth.
+🛠 **In Progress / Coming Soon**
+- NFT Relic Collection (Myth-based artifacts)  
+- Poseidon Web3 Game  
+- CEX Listing Discussions  
+
+---
+
+### 🔗 Key Links  
+- Website: https://poseidon.wiki  
+- Twitter: https://x.com/poseidon_sui  
+- PoseiBot Web: https://poseibot.com  
+- PoseiBot Twitter: https://x.com/PoseiBot  
+- Telegram: https://t.me/poseidon_sui  
+- Zealy: https://zealy.io/c/waveriders  
+- Cetus Swap: https://app.cetus.zone/swap/0x2::sui::SUI/0x72b7...::posei::POSEI  
+- Contract Address (CA):  
+  0x72b7570eb491170efa55f55fa78ad403673be82d5688c01ed1314b60c6f12ec3::posei::POSEI  
+- Email: team@poseidon.wiki
+
+---
+
+### 🌀 Official Slogan  
+**Ride the wave. Write the myth.**
