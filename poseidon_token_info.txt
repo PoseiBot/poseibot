@@ -55,7 +55,7 @@ https://imgdlvr.com/pic/photoresizer.com/20250630-2582/public
 
 ### 📦 Distribution Overview  
 - **Team**: 5% – Locked for 1 year  
-  https://app.streamflow.finance/contract/sui/mainnet/0x52b8...  
+  https://app.streamflow.finance/contract/sui/mainnet/0x52b829f6ad0310a1cdd1e563570ec7808d840a98936be64e6ca858511b73dc12  
 - **Marketing**: 3% – Promotion & partnerships  
 - **Airdrop**: 3% – Community rewards  
 - **Liquidity Pool**: 100% burned  
@@ -97,7 +97,7 @@ It acts as the living fuel of myth in a digital age.
 - PoseiBot Twitter: https://x.com/PoseiBot  
 - Telegram: https://t.me/poseidon_sui  
 - Zealy: https://zealy.io/c/waveriders  
-- Cetus Swap: https://app.cetus.zone/swap/0x2::sui::SUI/0x72b7...::posei::POSEI  
+- Cetus Swap: https://app.cetus.zone/swap/0x2::sui::SUI/0x72b7570eb491170efa55f55fa78ad403673be82d5688c01ed1314b60c6f12ec3::posei::POSEI  
 - Contract Address (CA):  
   0x72b7570eb491170efa55f55fa78ad403673be82d5688c01ed1314b60c6f12ec3::posei::POSEI  
 - Email: team@poseidon.wiki
