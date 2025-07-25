@@ -1,1 +1,87 @@
-There are no recent development updates at this time.
+[2025-07-25] 포세이봇 웹 에이전트 정식 오픈
+→ POSEI 프로젝트의 AI 챗봇 '포세이봇'이 https://poseibot.com 에서 정식 공개되었습니다.
+→ GPT-4o 기반의 자연어 이해 능력을 바탕으로, 사용자는 포세이돈 세계관, 토큰 정보, 커뮤니티 소식 등을 웹에서 직접 물어볼 수 있습니다.
+→ 이는 텔레그램, 트위터에 이어 Web3 밈토큰 최초로 멀티 플랫폼 에이전트 체계를 완성한 사례입니다.
+
+[2025-07-14] 팀 보유 토큰 5% 1년간 락업 완료
+→ 프로젝트 팀은 커뮤니티 신뢰 확보와 투명성 강화를 위해 총 발행량의 5%인 5억 POSEI를 온체인으로 1년간 락업했습니다.
+→ Streamflow 플랫폼을 통해 자동화된 시간 기반 분배가 적용되며, 토큰 분배 계약은 누구나 열람 가능합니다.
+→ 확인 링크: https://app.streamflow.finance/contract/sui/mainnet/0x52b829f6ad0310a1cdd1e563570ec7808d840a98936be64e6ca858511b73dc12
+
+[2025-07-07] 트위터 기반 포세이봇 에이전트 공식 출시
+→ 포세이봇이 트위터(X)에 공식 런칭되며, 9개 신화 영역을 바탕으로 자동 트윗 기능이 가동되었습니다.
+→ 각 트윗은 PO, NX, MB 등 코드로 분류되며, 해시태그 및 색상 이모지로 구분됩니다.
+→ 이는 챗봇을 넘어선 '신화 전파형 밈 확산 시스템'으로 기능합니다.
+→ 트위터: https://x.com/PoseiBot
+
+[2025-07-02] 텔레그램 포세이봇 에이전트 출시
+→ 실시간 Q&A가 가능한 포세이봇 텔레그램 챗봇이 출시되었습니다.
+→ 사용자는 웨이브라이더 시스템, 토큰 정보, 세계관 등 다양한 질문을 자유롭게 할 수 있습니다.
+→ 접속 링크: https://t.me/poseidon_sui
+
+[2025-06-17] PoseiToon: 포세이돈 연대기 포스터 공개
+→ 포세이툰 세계관의 시리즈 연재가 임박하며, “방주가 돌아왔지만, 당신이 기억하는 그 방주는 아니다.”라는 슬로건과 함께 포세이돈 연대기 포스터가 공개되었습니다.
+→ 이는 향후 서사 중심 캠페인의 시작을 알리는 의미 있는 티저입니다.
+
+[2025-06-10] Poseidon Kingdom 테마파크 오픈
+→ 포세이돈 신화의 확장 버전인 'Poseidon Kingdom' 이 정식으로 공개되었습니다.
+→ 신화 테마파크 형태의 구조로 설계되어 향후 메타버스 및 실물 체험 공간으로 확장될 기반이 마련되었습니다.
+→ 포세이돈 킹덤 보기: https://poseidon.wiki/kingdom
+
+[2025-06-08] Cetus 풀 복구 완료 및 거래 재개
+→ 5월 말 발생한 해킹 문제로 일시 정지됐던 POSEI 유동성 풀이 복구되었습니다.
+→ Cetus DEX를 통한 거래도 공식적으로 재개되어 유동성이 정상화되었습니다.
+
+[2025-05-30] PoseiToon 만화 플랫폼 정식 오픈
+→ 포세이돈 IP 기반의 디지털 만화 플랫폼인 'PoseiToon'이 런칭되었습니다.
+→ 첫 화 "Sea of Posei: Prologue"에서는 바다 밈의 기원과 포세이돈의 부활 이야기가 전개됩니다.
+→ 보기: https://poseidon.wiki/poseitoon01
+
+[2025-05-22] Cetus 해킹 사태로 거래 일시 중단
+→ Cetus 플랫폼 전반에서 보안 이슈가 발생하며 POSEI를 포함한 다수 토큰 거래가 긴급 중단되었습니다.
+→ 이후 풀 복구 및 사용자 대응이 이루어졌으며, 이 사태는 POSEI의 리스크 대응 프로세스를 검증하는 계기가 되었습니다.
+
+[2025-05-21] Zealy XP 시스템 오픈
+→ 웨이브라이더 XP 시스템이 Zealy 플랫폼과 연동되어 정식 오픈되었습니다.
+→ 유저는 퀘스트를 수행하고 경험치를 누적하여 등급과 보상을 획득할 수 있습니다.
+→ 참여: https://zealy.io/c/waveriders
+
+[2025-05-17] DEXTools에 POSEI 페어 등록
+→ POSEI/SUI 페어가 DEXTools에 등록되어 실시간 가격 및 토큰 정보, 차트 조회가 가능해졌습니다.
+→ 유저는 Cetus 유동성 정보를 외부 분석 도구를 통해 확인할 수 있습니다.
+→ https://www.dextools.io/app/en/sui/pair-explorer/0x2d77e10dabece5af3131ba764de3831de738b419facca343a5cb5d05ca326671
+
+[2025-05-16] 수이몬 파트너십 체결
+→ Sui 기반 AI 에이전트 및 Game 프로젝트인 Suimon과의 파트너십이 체결되어, 신화 IP 기반 협력이 예고되었습니다.
+→ 공식 트윗: https://x.com/suimon_/status/1923122958622654793
+
+[2025-05-16] DEX Screener 등록
+→ DEX Screener에 POSEI 페어가 등록되어 거래 트래킹 및 외부 연동이 가능해졌습니다.
+→ https://dexscreener.com/sui/0x2d77e10dabece5af3131ba764de3831de738b419facca343a5cb5d05ca326671
+
+[2025-05-14] POSEI 토큰 Cetus DEX 상장
+→ 2025년 5월 14일 UTC 07:25, POSEI V2 토큰이 Cetus에 정식 상장되었습니다.
+→ 상장과 동시에 유동성 100% 소각 및 계약 소유권 포기(Renounce)가 동시에 이루어졌으며, 완전 탈중앙화가 실현되었습니다.
+→ 스왑: https://app.cetus.zone/swap/0x2::sui::SUI/0x72b7570eb491170efa55f55fa78ad403673be82d5688c01ed1314b60c6f12ec3::posei::POSEI
+→ LP 소각: https://suivision.xyz/object/0x8f5b70aabde9480c0ce289766947bee9d771b7ea0c19be9ac774d1786b22c41d
+
+[2025-05-13] MovePump → Cetus 마이그레이션 발표
+→ Slush Wallet 통합 이후 MovePump에서의 거래 안정성 저하와 부스트 기능 중단 등 기술적 한계가 나타나면서, 프로젝트는 Cetus DEX 중심으로의 전환을 결정했습니다.
+→ 또한 BlueMove 풀과의 호환성 문제, Sui 생태계에서 Cetus의 영향력 등을 고려하여 마이그레이션을 단행했습니다.
+→ 기존 V1 토큰 보유자는 V2로 1:1 스왑 받을 수 있었습니다.
+
+[2025-05-07] 공식 웹사이트 오픈
+→ 포세이돈 프로젝트의 공식 웹사이트 poseidon.wiki가 정식 공개되며, 전체 비전, 세계관, 토큰 구조에 대한 설명이 시작되었습니다.
+→ https://poseidon.wiki/
+
+[2025-04-26] MovePump 거래 일시 중단
+→ Slush Wallet 통합으로 인해 MovePump 상에서 거래 불안정 현상이 발생하였고, 일부 거래가 일시적으로 제한되었습니다.
+
+[2025-04-22] MovePump에 POSEI 최초 상장
+→ POSEI 토큰이 MovePump 플랫폼에 처음으로 상장되었으며, 당시엔 V1 구조였습니다.
+→ 이후 Cetus로의 마이그레이션 전까지 거래가 이루어졌습니다.
+→ https://movepump.com/token/0x075ec28ff316f64ec93aeb0463a3ca14ad5d9900d96a76dde1d8e594d4de4db1::posei::POSEI
+
+[2025-04-22] $POSEI 토큰 기획 시작
+→ 일론 머스크의 트윗에서 영감을 받아 '밈에서 신화로'를 목표로 한 $POSEI 프로젝트가 기획되었습니다.
+→ https://x.com/elonmusk/status/1914556969161036010
