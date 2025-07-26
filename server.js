@@ -38,9 +38,25 @@ ${poseidonNews}
 ${poseidonMarketing}
 `;
 
-// 🔎 뉴스 질문 판별 함수
+// 🌐 다국어 뉴스 관련 키워드 탐지 함수
 function isNewsQuery(text) {
-  return /뉴스|news|latest|최근|search|검색|정보|기사|링크/i.test(text);
+  return /뉴스|news|latest|최근|search|검색|정보|기사|링크|新闻|消息|最近|资讯|ニュース|記事|noticias|últimas|buscar|información|nouvelles|dernières|recherche|nachrichten|neueste|notícias|pesquisa|समाचार|ताज़ा|खोज|berita|terbaru|informasi|tin tức|mới nhất|ค้นหา|ข่าว|новости|поиск|أخبار|مقالات|بحث|معلومة|رابط|جديد/i.test(text);
+}
+
+// 🌍 입력 언어에 따라 응답 언어 지시
+function detectLangInstruction(text) {
+  if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text)) return "질문에 한국어로 답변해 주세요.";
+  if (/[ぁ-んァ-ン一-龯]/.test(text)) return "日本語で答えてください。";
+  if (/[\u4e00-\u9fff]/.test(text)) return "请用中文回答。";
+  if (/[А-яЁё]/.test(text)) return "Пожалуйста, ответьте по-русски.";
+  if (/[أ-ي]/.test(text)) return "يرجى الرد باللغة العربية.";
+  if (/[áéíóúñ¿¡]/i.test(text)) return "Por favor responde en español.";
+  if (/[éèêàçùœ]/i.test(text)) return "Veuillez répondre en français.";
+  if (/[äöüß]/i.test(text)) return "Bitte antworten Sie auf Deutsch.";
+  if (/[अ-ह]/.test(text)) return "कृपया हिंदी में उत्तर दें।";
+  if (/[ăâêôơưđ]/i.test(text)) return "Vui lòng trả lời bằng tiếng Việt.";
+  if (/[ก-๙]/.test(text)) return "กรุณาตอบเป็นภาษาไทย";
+  return "Please answer in English.";
 }
 
 // 🔗 SERPER API로 웹 검색
@@ -68,15 +84,15 @@ app.post("/chat", async (req, res) => {
   const userInput = req.body.message || "";
 
   try {
-    // 🔍 뉴스 관련 질문이면 Serper 사용
     if (isNewsQuery(userInput)) {
       const serperData = await fetchSerperSearch(userInput);
       const summary = formatSerperResults(serperData);
+      const langInstruction = detectLangInstruction(userInput);
 
       const gptNews = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
-          { role: "system", content: "You are a helpful assistant that summarizes live news search results." },
+          { role: "system", content: `${langInstruction} You are a helpful assistant that summarizes live news search results.` },
           { role: "user", content: `Summarize the following search results:\n\n${summary}` }
         ]
       });
