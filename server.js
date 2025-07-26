@@ -46,8 +46,7 @@ function isNewsQuery(text) {
 // 🌍 입력 언어에 따라 응답 언어 지시
 function detectLangInstruction(text) {
   if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text)) return "질문에 한국어로 답변해 주세요.";
-  if (/[ぁ-んァ-ン一-龯]/.test(text)) return "日本語で答えてください。";
-  if (/[\u4E00-\u9FFF]/.test(text)) return "请用中文回答。"; // 중/일 공용 -> 마지막 검사 우선
+  if (/[ぁ-んァ-ン]/.test(text)) return "日本語で答えてください。";
   if (/[А-яЁё]/.test(text)) return "Пожалуйста, ответьте по-русски.";
   if (/[أ-ي]/.test(text)) return "يرجى الرد باللغة العربية.";
   if (/[áéíóúñ¿¡]/i.test(text)) return "Por favor responde en español.";
@@ -56,7 +55,7 @@ function detectLangInstruction(text) {
   if (/[अ-ह]/.test(text)) return "कृपया हिंदी में उत्तर दें।";
   if (/[ăâêôơưđ]/i.test(text)) return "Vui lòng trả lời bằng tiếng Việt.";
   if (/[ก-๙]/.test(text)) return "กรุณาตอบเป็นภาษาไทย";
-  if (/[a-zA-Z]/.test(text)) return "Please answer in English.";
+  if (/[一-龯\u4E00-\u9FFF]/.test(text)) return "请用中文回答。";
   return "Please answer in English.";
 }
 
