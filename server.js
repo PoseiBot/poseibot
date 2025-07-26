@@ -47,7 +47,7 @@ function isNewsQuery(text) {
 function detectLangInstruction(text) {
   if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text)) return "질문에 한국어로 답변해 주세요.";
   if (/[ぁ-んァ-ン一-龯]/.test(text)) return "日本語で答えてください。";
-  if (/[\u4e00-\u9fff]/.test(text)) return "请用中文回答。";
+  if (/[\u4E00-\u9FFF]/.test(text)) return "请用中文回答。"; // 중/일 공용 -> 마지막 검사 우선
   if (/[А-яЁё]/.test(text)) return "Пожалуйста, ответьте по-русски.";
   if (/[أ-ي]/.test(text)) return "يرجى الرد باللغة العربية.";
   if (/[áéíóúñ¿¡]/i.test(text)) return "Por favor responde en español.";
