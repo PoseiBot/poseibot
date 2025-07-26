@@ -1,5 +1,3 @@
-// ✅ server.js - GPT 응답 + 시스템 프롬프트 5종 + Serper 뉴스 검색 포함
-
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -101,6 +99,11 @@ app.post("/chat", async (req, res) => {
     console.error("[GPT ERROR]", err);
     res.status(500).json({ answer: "⚠️ GPT response error." });
   }
+});
+
+// ✅ 루트 경로에서 index.html 제공
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
