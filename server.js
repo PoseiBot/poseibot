@@ -40,7 +40,7 @@ ${poseidonMarketing}
 
 // 🌐 다국어 뉴스 관련 키워드 탐지 함수
 function isNewsQuery(text) {
-  return /뉴스|news|latest|최근|search|검색|정보|기사|링크|新闻|消息|最近|资讯|ニュース|記事|noticias|últimas|buscar|información|nouvelles|dernières|recherche|nachrichten|neueste|notícias|pesquisa|समाचार|ताज़ा|खोज|berita|terbaru|informasi|tin tức|mới nhất|ค้นหา|ข่าว|новости|поиск|أخبار|مقالات|بحث|معلومة|رابط|جديد/i.test(text);
+  return /뉴스|news|latest|최근|search|검색|정보|기사|링크|新闻|消息|最近|资讯|ニュース|記事|noticias|últimas|buscar|información|nouvelles|dernières|recherche|nachrichten|neueste|notícias|pesquisa|समाचार|ताज़ा|खोज|berita|terbaru|informasi|tin tức|mới nhất|ค้นหา|ข่าว|новости|поиск|Актуальные|أخبار|مقالات|بحث|معلومة|رابط|جديد/i.test(text);
 }
 
 // 🌍 입력 언어에 따라 응답 언어 지시
@@ -56,6 +56,7 @@ function detectLangInstruction(text) {
   if (/[अ-ह]/.test(text)) return "कृपया हिंदी में उत्तर दें।";
   if (/[ăâêôơưđ]/i.test(text)) return "Vui lòng trả lời bằng tiếng Việt.";
   if (/[ก-๙]/.test(text)) return "กรุณาตอบเป็นภาษาไทย";
+  if (/[a-zA-Z]/.test(text)) return "Please answer in English.";
   return "Please answer in English.";
 }
 
